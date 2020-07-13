@@ -693,7 +693,7 @@
 					return false;
 				}
 				function setConfig() {
-					var i, mapfields = "", shadingSelect = "<option value=''>none</option>", mapfields_del = "", mapselect = "", alt = "", overlay, sel, allMaps = that.parameters.maps;
+					var i, mapfields = "", shadingSelect = "<option value=''>none</option>", mapfields_del = "", mapselect = "", alt = "", overlay, sel, overSel, allMaps = that.parameters.maps;
 					for (i = 0; i < allMaps.length; i++) {
 						alt = allMaps[i].alt;
 						overlay = allMaps[i].overlay;
@@ -719,6 +719,12 @@
 							sel[i].selected = "selected";
 						}
 					}
+					overSel = $("#GME_hill_shade_default").children();
+					for (i = overSel.length - 1; i > -1; i--) {
+						if (overSel[i].value === that.parameters.defaultHillShade) {
+							overSel[i].selected = "selected";
+						}
+					}
 					$("#GME_filterFinds").attr("checked", that.parameters.filterFinds);
 					$("#GME_osgbSearch").attr("checked", that.parameters.osgbSearch);
 					$("#GME_follow").attr("checked", that.parameters.follow);
@@ -730,6 +736,7 @@
 				function storeSettings() {
 					var i, j, list;
 					that.parameters.defaultMap = $("#GME_map_default")[0].value;
+					that.parameters.defaultHillShade = $("#GME_hill_shade_default")[0].value;
 					list = $("#GME_mapfields input");
 					for (i = list.length - 1; i >= 0; i--) {
 						for (j = that.parameters.maps.length - 1; j >= 0; j--) {
@@ -1675,6 +1682,9 @@
 							if (layer) {
 								if (src.overlay) {
 									overlays[src.alt] = layer;
+									if (src.alt === that.parameters.defaultHillShade) {
+										layer.default = true;
+									}
 								} else {
 									if (src.alt === that.parameters.defaultMap) {
 										layer.default = true;
@@ -1688,11 +1698,15 @@
 					if (baseMaps > 0) {
 						// Only return a new control if we have some basemaps.
 						control = L.control.layers(maps, overlays);
-						control.setDefault = function () {
-							var defLayer, j;
+							var defLayer, defOverlay, j;
 							for (j in this._layers) {
-								if (this._layers.hasOwnProperty(j) && this._layers[j].layer.default) {
+								if (this._layers.hasOwnProperty(j)
+									&& this._layers[j].layer.default) {
+									if (!this._layers[j].overlay) {
 									defLayer = j;
+									} else {
+										defOverlay = j;
+									}
 								}
 							}
 							if (!defLayer) {
@@ -1700,6 +1714,9 @@
 							}
 							if (this._map && defLayer !== undefined) {
 								this._map.addLayer(this._layers[defLayer].layer, true);
+							}
+							if (this._map && defOverlay !== undefined) {
+								this._map.addLayer(this._layers[defOverlay].layer, true);
 							}
 							return defLayer;
 						};
