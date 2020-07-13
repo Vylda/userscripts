@@ -1673,6 +1673,48 @@
 						this.brightness = e.layer.options.brightness || that.parameters.brightness;
 					}
 				}
+
+				function GME_get_layerControl0(map) {
+					var maps = {}, overlays = {}, allMaps = that.parameters.maps, baseMaps, control, i, layer, src;
+					for (baseMaps = 0, i = 0; i < allMaps.length; i++) {
+						src = allMaps[i];
+						if (!src.ignore) {
+							layer = L.GME_genericLayer(src.tileUrl, src);
+							if (layer) {
+								if (src.overlay) {
+									overlays[src.alt] = layer;
+								} else {
+									if (src.alt === that.parameters.defaultMap) {
+										layer.default = true;
+									}
+									maps[src.alt] = layer;
+									baseMaps++;
+								}
+							}
+						}
+					}
+					if (baseMaps > 0) {
+						// Only return a new control if we have some basemaps.
+						control = L.control.layers(maps, overlays);
+						control.setDefault = function() {
+							var defLayer, j;
+							for (j in this._layers) {
+								if (this._layers.hasOwnProperty(j) && this._layers[j].layer.default) {
+									defLayer = j;
+								}
+							}
+							if (!defLayer) {
+								defLayer = Object.keys(this._layers)[0];
+							}
+							if (this._map && defLayer !== undefined) {
+								this._map.addLayer(this._layers[defLayer].layer, true);
+							}
+							return defLayer;
+						};
+					}
+					return control;
+				}
+
 				function GME_get_layerControl(map) {
 					var maps = {}, overlays = {}, allMaps = that.parameters.maps, baseMaps, control, i, layer, src;
 					for (baseMaps = 0, i = 0; i < allMaps.length; i++) {
@@ -1698,1157 +1740,1158 @@
 					if (baseMaps > 0) {
 						// Only return a new control if we have some basemaps.
 						control = L.control.layers(maps, overlays);
-						var defLayer, defOverlay, j;
-						for (j in this._layers) {
-							if (this._layers.hasOwnProperty(j)
-								&& this._layers[j].layer.default) {
-								if (!this._layers[j].overlay) {
-									defLayer = j;
-								} else {
-									defOverlay = j;
+						control.setDefault = function() {
+							var defLayer, defOverlay, j;
+							for (j in this._layers) {
+								if (this._layers.hasOwnProperty(j)
+									&& this._layers[j].layer.default) {
+									if (!this._layers[j].overlay) {
+										defLayer = j;
+									} else {
+										defOverlay = j;
+									}
+								}
+							}
+							if (!defLayer) {
+								defLayer = Object.keys(this._layers)[0];
+							}
+							if (this._map && defLayer !== undefined) {
+								this._map.addLayer(this._layers[defLayer].layer, true);
+							}
+							if (this._map && defOverlay !== undefined) {
+								this._map.addLayer(this._layers[defOverlay].layer, true);
+							}
+							return defLayer;
+						};
+					}
+					return control;
+				}
+				function GME_load_map(map) {
+					var control = GME_get_layerControl(),
+						layer;
+
+					map.on("layeradd", switchLayer);
+					if (document.createElement("div").style.opacity !== undefined) {
+						map.on("layeradd", setBrightness);
+					}
+
+					/* If we're adding our own map selector control, we need to manually remove any pre-existing map layers.  Otherwise, they persist in the background underneath
+					 * the layers provided by GME.	We check for the _url or _google attribute to distinguish map layers from other Leaflet layers like controls or popups */
+					if (control) {
+						if (gmeConfig.env.page === "maps" || gmeConfig.env.page === "track" || gmeConfig.env.page === "hide" || gmeConfig.env.page === "hide") {
+							$($(".leaflet-control-layers")[0]).remove();
+							for (layer in map._layers) {
+								if (map._layers[layer] instanceof L.TileLayer) {
+									if (window.MapSettings !== undefined && MapSettings.MapLayers !== undefined && MapSettings.MapLayers.Geocache === map._layers[layer]) {
+										// Leave geocache layer in place
+									} else {
+										map.removeLayer(map._layers[layer]);
+									}
 								}
 							}
 						}
-						if (!defLayer) {
-							defLayer = Object.keys(this._layers)[0];
-						}
-						if (this._map && defLayer !== undefined) {
-							this._map.addLayer(this._layers[defLayer].layer, true);
-						}
-						if (this._map && defOverlay !== undefined) {
-							this._map.addLayer(this._layers[defOverlay].layer, true);
-						}
-						return defLayer;
-					};
-				}
-				return control;
-			}
-				function GME_load_map(map) {
-			var control = GME_get_layerControl(),
-			layer;
-
-	map.on("layeradd", switchLayer);
-	if (document.createElement("div").style.opacity !== undefined) {
-		map.on("layeradd", setBrightness);
-	}
-
-	/* If we're adding our own map selector control, we need to manually remove any pre-existing map layers.  Otherwise, they persist in the background underneath
-	 * the layers provided by GME.	We check for the _url or _google attribute to distinguish map layers from other Leaflet layers like controls or popups */
-	if (control) {
-		if (gmeConfig.env.page === "maps" || gmeConfig.env.page === "track" || gmeConfig.env.page === "hide" || gmeConfig.env.page === "hide") {
-			$($(".leaflet-control-layers")[0]).remove();
-			for (layer in map._layers) {
-				if (map._layers[layer] instanceof L.TileLayer) {
-					if (window.MapSettings !== undefined && MapSettings.MapLayers !== undefined && MapSettings.MapLayers.Geocache === map._layers[layer]) {
-						// Leave geocache layer in place
-					} else {
-						map.removeLayer(map._layers[layer]);
+						map.addControl(control);
+						control.setDefault();
 					}
 				}
-			}
-		}
-		map.addControl(control);
-		control.setDefault();
-	}
-}
 			},
-osgb: function () {
-	function OSGridToLatLng(E, N) {
-		var a = 6377563.396,
-			b = 6356256.910,
-			F0 = 0.9996012717,
-			lat0 = 49 * Math.PI / 180,
-			lon0 = -2 * Math.PI / 180,
-			N0 = -100000,
-			E0 = 400000,
-			e2 = 1 - (b * b) / (a * a),
-			n = (a - b) / (a + b),
-			n2 = n * n,
-			n3 = n * n2,
-			lat = lat0,
-			lon,
-			M = 0,
-			Ma, Mb, Mc, Md, cosLat, sinLat, nu, nu3, nu5, nu7, rho, eta2, tanLat, tan2lat, tan4lat, tan6lat, secLat, VII, VIII, IX, X, XI, XII, XIIA, dE, dE2, dE3, dE4, dE5, dE6, dE7, tx, ty, tz, rx, ry, rz, s1, sinPhi, cosPhi, sinLambda, cosLambda, eSq, nu2, x1, y1, z1, x2, y2, z2, p, phi, phiP, precision, lambda;
-		do {
-			lat = (N - N0 - M) / (a * F0) + lat;
-			Ma = (1 + n + (5 / 4) * n2 + (5 / 4) * n3) * (lat - lat0);
-			Mb = (3 * n + 3 * n * n + (21 / 8) * n3) * Math.sin(lat - lat0) * Math.cos(lat + lat0);
-			Mc = ((15 / 8) * n2 + (15 / 8) * n3) * Math.sin(2 * (lat - lat0)) * Math.cos(2 * (lat + lat0));
-			Md = (35 / 24) * n3 * Math.sin(3 * (lat - lat0)) * Math.cos(3 * (lat + lat0));
-			M = b * F0 * (Ma - Mb + Mc - Md);
-		} while (N - N0 - M >= 0.01);
-		cosLat = Math.cos(lat);
-		sinLat = Math.sin(lat);
-		nu = a * F0 / Math.sqrt(1 - e2 * sinLat * sinLat);
-		rho = a * F0 * (1 - e2) / Math.pow(1 - e2 * sinLat * sinLat, 1.5);
-		eta2 = nu / rho - 1;
-		tanLat = Math.tan(lat);
-		tan2lat = tanLat * tanLat;
-		tan4lat = tan2lat * tan2lat;
-		tan6lat = tan4lat * tan2lat;
-		secLat = 1 / cosLat;
-		nu3 = nu * nu * nu;
-		nu5 = nu3 * nu * nu;
-		nu7 = nu5 * nu * nu;
-		VII = tanLat / (2 * rho * nu);
-		VIII = tanLat / (24 * rho * nu3) * (5 + 3 * tan2lat + eta2 - 9 * tan2lat * eta2);
-		IX = tanLat / (720 * rho * nu5) * (61 + 90 * tan2lat + 45 * tan4lat);
-		X = secLat / nu;
-		XI = secLat / (6 * nu3) * (nu / rho + 2 * tan2lat);
-		XII = secLat / (120 * nu5) * (5 + 28 * tan2lat + 24 * tan4lat);
-		XIIA = secLat / (5040 * nu7) * (61 + 662 * tan2lat + 1320 * tan4lat + 720 * tan6lat);
-		dE = (E - E0);
-		dE2 = dE * dE;
-		dE3 = dE2 * dE;
-		dE4 = dE2 * dE2;
-		dE5 = dE3 * dE2;
-		dE6 = dE4 * dE2;
-		dE7 = dE5 * dE2;
-		lat = lat - VII * dE2 + VIII * dE4 - IX * dE6;
-		lon = lon0 + X * dE - XI * dE3 + XII * dE5 - XIIA * dE7;
-		tx = 446.448;
-		ty = -125.157;
-		tz = 542.060;
-		rx = 7.2819014902652306237205098174164e-7;
-		ry = 1.1974897923405539041670878328241e-6;
-		rz = 4.0826160086234026020206666559563e-6;
-		s1 = 0.9999795106;
-		sinPhi = Math.sin(lat);
-		cosPhi = Math.cos(lat);
-		sinLambda = Math.sin(lon);
-		cosLambda = Math.cos(lon);
-		eSq = (a * a - b * b) / (a * a);
-		nu2 = a / Math.sqrt(1 - eSq * sinPhi * sinPhi);
-		x1 = nu2 * cosPhi * cosLambda;
-		y1 = nu2 * cosPhi * sinLambda;
-		z1 = (1 - eSq) * nu2 * sinPhi;
-		x2 = tx + x1 * s1 - y1 * rz + z1 * ry;
-		y2 = ty + x1 * rz + y1 * s1 - z1 * rx;
-		z2 = tz - x1 * ry + y1 * rx + z1 * s1;
-		a = 6378137;
-		b = 6356752.3142;
-		eSq = (a * a - b * b) / (a * a);
-		p = Math.sqrt(x2 * x2 + y2 * y2);
-		phi = Math.atan2(z2, p * (1 - eSq));
-		phiP = 2 * Math.PI;
-		precision = 4 / a;
-		while (Math.abs(phi - phiP) > precision) {
-			nu = a / Math.sqrt(1 - eSq * Math.sin(phi) * Math.sin(phi));
-			phiP = phi;
-			phi = Math.atan2(z2 + eSq * nu * Math.sin(phi), p);
-		}
-		lambda = Math.atan2(y2, x2);
-		return { lat: phi * 180 / Math.PI, lng: lambda * 180 / Math.PI };
-	}
-	function gridrefLetToNum(letters, numbers) {
-		letters = letters.toUpperCase();
-		var e, n,
-			l1 = letters.charCodeAt(0) - "A".charCodeAt(0),
-			l2 = letters.charCodeAt(1) - "A".charCodeAt(0);
-		if (l1 > 7) { l1--; }
-		if (l2 > 7) { l2--; }
-		e = ((l1 - 2) % 5) * 5 + (l2 % 5);
-		n = (19 - Math.floor(l1 / 5) * 5) - Math.floor(l2 / 5);
-		e += numbers.slice(0, numbers.length / 2);
-		n += numbers.slice(numbers.length / 2);
-		switch (numbers.length) {
-			case 2: e += "5000"; n += "5000"; break;
-			case 4: e += "500"; n += "500"; break;
-			case 6: e += "50"; n += "50"; break;
-			case 8: e += "5"; n += "5"; break;
-		}
-		return [e, n];
-	}
-	function parseGR(searchVal) {
-		var ngr, gr = searchVal.match(/^\s*([hnstHNST][A-Ha-hJ-Zj-z])\s*((?:\d\d){1,5})\s*$/);
-		if (gr) {
-			if (gr.length === 3) {
-				if (2 * Math.floor(gr[2].length / 2) === gr[2].length) {
-					ngr = gridrefLetToNum(gr[1], gr[2]);
-					return OSGridToLatLng(ngr[0], ngr[1]);
-				}
-			}
-			return null;
-		}
-		gr = searchVal.match(/^\s*(\d{3,6})\s*,\s*(\d{4,7})\s*$/);
-		if (gr) {
-			if (gr.length === 3) {
-				return OSGridToLatLng(gr[1], gr[2]);
-			}
-		}
-		return null;
-	}
-},
-seek: function () {
-	this.seekGR = function(searchVal) {
-		if (searchVal.length > 0) {
-			var coords = parseGR(searchVal);
-			if (coords !== null) {
-				that.seekByLatLng(coords);
-			} else {
-				alert("Could not recognise grid reference.");
-			}
-		}
-	};
-},
-widget: function () {
-	var locationControlObj = {
-		onAdd: function(map) {
-			var el, tracking = false, container = L.DomUtil.create("div", "leaflet-control-toolbar groundspeak-control-findmylocation gme-left");
-			function located(l) {
-				this.panTo(l.latlng);
-			}
-			function click(e) {
-				L.DomEvent.stopPropagation(e);
-				if (tracking) {
-					map.stopLocate();
-					map.off("locationfound", located);
-					tracking = false;
-					$(".groundspeak-control-findmylocation-lnk").removeClass("gme-button-active");
-					$("#GME_loc").attr("title", "Follow My Location");
-				} else {
-					map.on("locationfound", located);
-					map.locate({ enableHighAccuracy: true, watch: true, timeout: 60000 });
-					tracking = true;
-					$(".groundspeak-control-findmylocation-lnk").addClass("gme-button-active");
-					$("#GME_loc").attr("title", "Stop following");
-				}
-			}
-			function click_once(e) {
-				L.DomEvent.stopPropagation(e);
-				this.locate({ setView: true, maxZoom: this.getZoom(), minZoom: this.getZoom(), enableHighAccuracy: true, timeout: 60000 });
-			}
-			el = document.createElement("a");
-			el.id = "GME_loc";
-			el.title = that.parameters.follow ? "Follow My Location" : "Find My Location";
-			el.className = "groundspeak-control-findmylocation-lnk";
-			if (that.parameters.follow) {
-				L.DomEvent.addListener(el, "click", click, map);
-			} else {
-				L.DomEvent.addListener(el, "click", click_once, map);
-			}
-			container.appendChild(el);
-			return container;
-		}
-	},
-		widgetControlObj = {
-			options: { position: "bottomleft" },
-			onAdd: function(contextmap) {
-				var elem, container = L.DomUtil.create("div", "leaflet-control-gme"), control = this, html = "";
-				function onPopup(e) {
-					if (e.layer._container && /leaflet-popup/.test(e.layer._container.className)) {
-						$(e.layer._contentNode).on("click", ".gme-event", contextmap, mapHandler);
-						$(e.layer._contentNode).on("dragstart", ".gme-draggable-gpx", { line: control._dist_line }, dragGPXHandler);
+			osgb: function() {
+				function OSGridToLatLng(E, N) {
+					var a = 6377563.396,
+						b = 6356256.910,
+						F0 = 0.9996012717,
+						lat0 = 49 * Math.PI / 180,
+						lon0 = -2 * Math.PI / 180,
+						N0 = -100000,
+						E0 = 400000,
+						e2 = 1 - (b * b) / (a * a),
+						n = (a - b) / (a + b),
+						n2 = n * n,
+						n3 = n * n2,
+						lat = lat0,
+						lon,
+						M = 0,
+						Ma, Mb, Mc, Md, cosLat, sinLat, nu, nu3, nu5, nu7, rho, eta2, tanLat, tan2lat, tan4lat, tan6lat, secLat, VII, VIII, IX, X, XI, XII, XIIA, dE, dE2, dE3, dE4, dE5, dE6, dE7, tx, ty, tz, rx, ry, rz, s1, sinPhi, cosPhi, sinLambda, cosLambda, eSq, nu2, x1, y1, z1, x2, y2, z2, p, phi, phiP, precision, lambda;
+					do {
+						lat = (N - N0 - M) / (a * F0) + lat;
+						Ma = (1 + n + (5 / 4) * n2 + (5 / 4) * n3) * (lat - lat0);
+						Mb = (3 * n + 3 * n * n + (21 / 8) * n3) * Math.sin(lat - lat0) * Math.cos(lat + lat0);
+						Mc = ((15 / 8) * n2 + (15 / 8) * n3) * Math.sin(2 * (lat - lat0)) * Math.cos(2 * (lat + lat0));
+						Md = (35 / 24) * n3 * Math.sin(3 * (lat - lat0)) * Math.cos(3 * (lat + lat0));
+						M = b * F0 * (Ma - Mb + Mc - Md);
+					} while (N - N0 - M >= 0.01);
+					cosLat = Math.cos(lat);
+					sinLat = Math.sin(lat);
+					nu = a * F0 / Math.sqrt(1 - e2 * sinLat * sinLat);
+					rho = a * F0 * (1 - e2) / Math.pow(1 - e2 * sinLat * sinLat, 1.5);
+					eta2 = nu / rho - 1;
+					tanLat = Math.tan(lat);
+					tan2lat = tanLat * tanLat;
+					tan4lat = tan2lat * tan2lat;
+					tan6lat = tan4lat * tan2lat;
+					secLat = 1 / cosLat;
+					nu3 = nu * nu * nu;
+					nu5 = nu3 * nu * nu;
+					nu7 = nu5 * nu * nu;
+					VII = tanLat / (2 * rho * nu);
+					VIII = tanLat / (24 * rho * nu3) * (5 + 3 * tan2lat + eta2 - 9 * tan2lat * eta2);
+					IX = tanLat / (720 * rho * nu5) * (61 + 90 * tan2lat + 45 * tan4lat);
+					X = secLat / nu;
+					XI = secLat / (6 * nu3) * (nu / rho + 2 * tan2lat);
+					XII = secLat / (120 * nu5) * (5 + 28 * tan2lat + 24 * tan4lat);
+					XIIA = secLat / (5040 * nu7) * (61 + 662 * tan2lat + 1320 * tan4lat + 720 * tan6lat);
+					dE = (E - E0);
+					dE2 = dE * dE;
+					dE3 = dE2 * dE;
+					dE4 = dE2 * dE2;
+					dE5 = dE3 * dE2;
+					dE6 = dE4 * dE2;
+					dE7 = dE5 * dE2;
+					lat = lat - VII * dE2 + VIII * dE4 - IX * dE6;
+					lon = lon0 + X * dE - XI * dE3 + XII * dE5 - XIIA * dE7;
+					tx = 446.448;
+					ty = -125.157;
+					tz = 542.060;
+					rx = 7.2819014902652306237205098174164e-7;
+					ry = 1.1974897923405539041670878328241e-6;
+					rz = 4.0826160086234026020206666559563e-6;
+					s1 = 0.9999795106;
+					sinPhi = Math.sin(lat);
+					cosPhi = Math.cos(lat);
+					sinLambda = Math.sin(lon);
+					cosLambda = Math.cos(lon);
+					eSq = (a * a - b * b) / (a * a);
+					nu2 = a / Math.sqrt(1 - eSq * sinPhi * sinPhi);
+					x1 = nu2 * cosPhi * cosLambda;
+					y1 = nu2 * cosPhi * sinLambda;
+					z1 = (1 - eSq) * nu2 * sinPhi;
+					x2 = tx + x1 * s1 - y1 * rz + z1 * ry;
+					y2 = ty + x1 * rz + y1 * s1 - z1 * rx;
+					z2 = tz - x1 * ry + y1 * rx + z1 * s1;
+					a = 6378137;
+					b = 6356752.3142;
+					eSq = (a * a - b * b) / (a * a);
+					p = Math.sqrt(x2 * x2 + y2 * y2);
+					phi = Math.atan2(z2, p * (1 - eSq));
+					phiP = 2 * Math.PI;
+					precision = 4 / a;
+					while (Math.abs(phi - phiP) > precision) {
+						nu = a / Math.sqrt(1 - eSq * Math.sin(phi) * Math.sin(phi));
+						phiP = phi;
+						phi = Math.atan2(z2 + eSq * nu * Math.sin(phi), p);
 					}
+					lambda = Math.atan2(y2, x2);
+					return { lat: phi * 180 / Math.PI, lng: lambda * 180 / Math.PI };
 				}
-				function offPopup(e) {
-					if (e.layer._container && /leaflet-popup/.test(e.layer._container.className)) {
-						$(e.layer._contentNode).off("click", ".gme-event", contextmap, mapHandler);
-						$(e.layer._contentNode).off("dragstart", ".gme-draggable-gpx", { line: control._dist_line }, dragGPXHandler);
+				function gridrefLetToNum(letters, numbers) {
+					letters = letters.toUpperCase();
+					var e, n,
+						l1 = letters.charCodeAt(0) - "A".charCodeAt(0),
+						l2 = letters.charCodeAt(1) - "A".charCodeAt(0);
+					if (l1 > 7) { l1--; }
+					if (l2 > 7) { l2--; }
+					e = ((l1 - 2) % 5) * 5 + (l2 % 5);
+					n = (19 - Math.floor(l1 / 5) * 5) - Math.floor(l2 / 5);
+					e += numbers.slice(0, numbers.length / 2);
+					n += numbers.slice(numbers.length / 2);
+					switch (numbers.length) {
+						case 2: e += "5000"; n += "5000"; break;
+						case 4: e += "500"; n += "500"; break;
+						case 6: e += "50"; n += "50"; break;
+						case 8: e += "5"; n += "5"; break;
 					}
+					return [e, n];
 				}
-				function mapHandler(e) {
-					var action = this.getAttribute("data-gme-action"),
-						c1 = this.getAttribute("data-gme-coords"),
-						c2, coords,
-						data = this.getAttribute("data-gme-ref"),
-						layer = this.getAttribute("data-gme-layer");
-					e.stopPropagation();
-					if (action !== "exportDist") {
-						e.preventDefault(e);
-					}
-					if (c1) {
-						c2 = c1.match(/(-?\d{1,2}(\.\d+)?),(-?\d{1,3}(\.\d+)?)/);
-						if (c2 && c2.length === 5 && validCoords(c2[1], c2[3])) {
-							coords = new L.LatLng(c2[1], c2[3]);
-						}
-					}
-					if (action === "clearDist") { control.clearDist(); }
-					if (action === "clearMarkers") { control.clearMarkers(); }
-					if (action === "dropDist" && coords) { control.dropDist(coords); }
-					if (action === "dropMarker" && coords) { control.dropMarker(coords); }
-					if (action === "exportDist") { control.exportDist(this); }
-					if (action === "getGeograph" && coords) { that.getGeograph(coords); }
-					if (action === "getHeight" && coords) { that.getHeight(coords); }
-					if (action === "getPostcode" && coords) { control.getPostcode(coords); }
-					if (action === "panTo" && coords) { e.data.panTo(coords); }
-					if (action === "removeMarker" && data) { control.removeMarker(data); }
-					if (action === "removeDistMarker" && data) { control.removeDistMarker(data); }
-					if (action === "toggleCaches") { control.toggleCaches(); }
-					$(".leaflet-popup-close-button").each(function() { this.click(); });
-				}
-				function dragGPXHandler(e) {
-					e.originalEvent.dataTransfer.effectAllowed = "copy";
-					var plain = e.data.line.getGPX(), data = e.data.line.getData();
-					e.originalEvent.dataTransfer.setData("application/xml-gpx", plain);
-					e.originalEvent.dataTransfer.setData("text/uri-list", data);
-					e.originalEvent.dataTransfer.setData("DownloadURL", "application/xml-gpx:gme-export.gpx:" + data);
-					e.originalEvent.dataTransfer.setData("text/plain", plain);
-				}
-				function widgetHandler(e) {
-					var action = this.getAttribute("data-gme-action");
-					e.stopPropagation();
-					if (action === "panToHome") { control.panToHome(); }
-					if (action === "toggleInfo") { control.toggleTool("info"); }
-					if (action === "toggleRoute") { control.toggleTool("route"); }
-					if (action === "toggleCaches") { control.toggleCaches(); }
-				}
-				this._map = contextmap;
-				this._map.infoMode = false;
-				this._map.routeMode = false;
-				this._markers = L.layerGroup().addTo(contextmap);
-				html = "<button type='button' class=\'GME_info gme-button gme-button-l\' title=\'Enable location info tool\' data-gme-action=\'toggleInfo\'></button>";
-				html += "<button type='button' class=\'GME_hide gme-button\' title=\'Hide caches\' data-gme-action=\'toggleCaches\'></button>";
-				html += "<button type='button' class=\'GME_route gme-button\' title=\'Enable route tool\' data-gme-action=\'toggleRoute\'></button>";
-				if (gmeConfig.env.home) {
-					html += "<button type='button' title=\'Go to home location\' class=\'GME_home gme-button\' data-gme-action=\'panToHome\'></button>";
-				}
-				if (gmeConfig.parameters.osgbSearch) {
-					$(".GME_search_results").on("click", ".gme-event", contextmap, mapHandler);
-				}
-				if (gmeConfig.env.storage) {
-					html += "<a class=\'GME_config gme-button\' title=\'Configure Geocaching Map Enhancements\' href=\'#GME_config\'></a>";
-				}
-				container.innerHTML = html;
-				$(container.lastChild).addClass("gme-button-r");
-				container.innerHTML += "<span class=\'gme-button gme-button-l gme-button-r gme-scale-container\' title=\'Approximate width of the full map view\' style=\'cursor:help;\'>Width: <span class=\'gme-scale\'>-</span></span><span class=\'gme-distance-container gme-button gme-button-r\' title=\'Measured distance\'>Route: <span class=\'gme-distance\'>" + formatDistance(0) + "</span></span>";
-				contextmap.addControl(new L.GME_ZoomWarning()).on("layeradd", onPopup).on("layerremove", offPopup).on("viewreset", this.updateScale, this);
-				$(container).on("click", ".gme-button", this, widgetHandler);
-				$(window).on("resize", this, (function(context) { var t = { timer: null }; return function() { context.updateScale(context._map, t); }; }(this)));
-				return container;
-			},
-			clearDist: function() {
-				this._dist_line.off("gme-length");
-				this._map.removeLayer(this._dist_line);
-				delete this._dist_line;
-				$(".gme-distance-container").removeClass("show");
-				$(".gme-distance").html(formatDistance(0));
-				$(".gme-scale-container").addClass("gme-button-r");
-			},
-			clearMarkers: function() {
-				this._markers.clearLayers();
-			},
-			dropDist: function(ll) {
-				if (!validCoords(ll)) { return; }
-				var dist, formatted;
-				if (this._dist_line === undefined) {
-					this._dist_line = new L.GME_DistLine([ll], { clickable: false });
-					this._dist_line.on("gme-length", function(e) { $(this._map._container).find(".gme-distance").html(formatDistance(e.length)); });
-					this._map.addLayer(this._dist_line);
-					$(this._map._container).find(".gme-distance-container").addClass("show");
-					$(this._map._container).find(".gme-scale-container").removeClass("gme-button-r");
-				} else {
-					this._dist_line.addLatLng(ll);
-				}
-			},
-			exportDist: function(e) {
-				if (!this._dist_line) { return; }
-				e.download = "ExportedRoute.gpx";
-				e.href = "data:application/xml-gpx," + encodeURIComponent(this._dist_line.getGPX());
-				return false;
-			},
-			dropMarker: function(ll, rad) {
-				if (!validCoords(ll)) { return; }
-				var circle,
-					defaultRadius = 0.161,
-					group,
-					label = "Marker",
-					m = 1000,
-					r, radius, raw,
-					unit = "km";
-				if (that.parameters.measure !== "metric") {
-					unit = "miles";
-					defaultRadius = 0.1;
-					m = 1609.344;
-				}
-				radius = defaultRadius;
-				if (!isNaN(rad)) {
-					radius = rad * 1;
-				} else {
-					raw = window.prompt("Radius in " + unit + " [, label]", defaultRadius).match(/([\d]*\.?[\d]*)\s*,?\s*(.*)/);
-					if (raw) {
-						if (raw.length === 3) {
-							radius = raw[1] * 1;
-							label = raw[2] || label;
-						} else {
-							label = raw;
-						}
-					}
-				}
-				if (radius) {
-					radius *= m;
-					if (isNaN(radius)) { radius = 161; }
-				} else {
-					radius = 161;
-				}
-				circle = new L.Circle(ll, radius, { weight: 2 });
-				group = new L.LayerGroup([circle, new L.CircleMarker(ll, { weight: 2, radius: 3 })]);
-				this._markers.addLayer(group);
-				r = (radius / m).toFixed(3) + " " + unit;
-				circle.bindPopup("<p><strong>" + label + "</strong><br/>Radius: " + r + "<br/>Centre: decimal " + ll.toUrl() + "<br/><strong>" + DMM(ll) + "</strong><br/><span style='float:right;'><a class='gme-event' data-gme-action='removeMarker' data-gme-ref='" + group._leaflet_id + "'>Clear</a>, <a class='gme-event' data-gme-action='clearMarkers'>Clear All</a></span></p>");
-			},
-			getPostcode: function(coords) {
-				var that = this, callprefix = "GME_postcode_callback", call;
-				function makeCallback(callname) {
-					callbackCount++; return function(json) {
-						var m;
-						if (json !== undefined && json.status === 200) {
-							if (json.result && json.result.length > 0) {
-								m = "<p>" + json.result[0].postcode + (json.result[0].parish ? (", " + json.result[0].parish) : "") + (json.result[0].admin_ward ? (", " + json.result[0].admin_ward) : "") + "</p>";
-							} else {
-								m = "<p>No postcode found for this location.<br />Is it within 500m of an occupied building?</p>";
+				function parseGR(searchVal) {
+					var ngr, gr = searchVal.match(/^\s*([hnstHNST][A-Ha-hJ-Zj-z])\s*((?:\d\d){1,5})\s*$/);
+					if (gr) {
+						if (gr.length === 3) {
+							if (2 * Math.floor(gr[2].length / 2) === gr[2].length) {
+								ngr = gridrefLetToNum(gr[1], gr[2]);
+								return OSGridToLatLng(ngr[0], ngr[1]);
 							}
+						}
+						return null;
+					}
+					gr = searchVal.match(/^\s*(\d{3,6})\s*,\s*(\d{4,7})\s*$/);
+					if (gr) {
+						if (gr.length === 3) {
+							return OSGridToLatLng(gr[1], gr[2]);
+						}
+					}
+					return null;
+				}
+			},
+			seek: function() {
+				this.seekGR = function(searchVal) {
+					if (searchVal.length > 0) {
+						var coords = parseGR(searchVal);
+						if (coords !== null) {
+							that.seekByLatLng(coords);
 						} else {
-							m = "<p>Error fetching data from postcodes.io</p>";
-						}
-						if (json.result && !isNaN(json.result[0].latitude) && !isNaN(json.result[0].longitude)) {
-							L.popup().setLatLng({ lat: json.result[0].latitude, lng: json.result[0].longitude }).setContent(m).openOn(that._map);
-						} else {
-							$.fancybox(m);
-						}
-						$("#" + callname).remove();
-						if (window[callname] !== undefined) { delete window[callname]; }
-					};
-				}
-				if (validCoords(coords)) {
-					call = callprefix + callbackCount;
-					window[call] = makeCallback(call);
-					JSONP("https://api.postcodes.io/postcodes/lon/" + coords.lng + "/lat/" + coords.lat + "?radius=500&limit=1&callback=" + call, call);
-				} else {
-					console.error("GME: Bad coordinates to getPostcode");
-				}
-			},
-			panToHome: function() {
-				if (gmeConfig.env.home) {
-					this._map.panTo(gmeConfig.env.home);
-					return true;
-				}
-				return false;
-			},
-			removeDistMarker: function(mark) {
-				if (this._dist_line) {
-					this._dist_line.removePt(mark);
-					$(this._map._container).find(".gme-distance").html(formatDistance(this._dist_line.getLength()));
-				}
-			},
-			removeMarker: function(mark) {
-				this._markers.removeLayer(this._markers._layers[mark]);
-			},
-			removeMarkers: function(mark) {
-				this._markers.clearLayer(this._markers._layers[mark]);
-			},
-			showInfo: function(e) {
-				var control = this, popupContent = "<p>", popup = new L.Popup(), i;
-
-				for (i = 0; i < this.tools.length; i++) {
-					if (this.tools[i].isValid(e.latlng, control._map.getZoom())) {
-						popupContent += this.tools[i].getHTML(e.latlng, control._map.getZoom(), control._map) + " ";
-					}
-				}
-				popupContent += "</p>";
-
-				popup.setLatLng(e.latlng);
-				popup.setContent(popupContent);
-				control._map.addLayer(popup);
-			},
-			tools: [
-				{
-					name: "Coords",
-					getHTML: function(coords, zoom, map) {
-						var ll = coords.toUrl();
-						return "<strong>" + DMM(coords) + "</strong><br/>Dec: <a href='geo:" + ll + "?z=" + zoom + "'>" + ll + "</a></br>";
-					},
-					isValid: function(coords, zoom) { return true; }
-				},
-				{
-					name: "List caches",
-					getHTML: function(coords, zoom, map) {
-						return "<a title='List " + (that.parameters.filterFinds ? "unfound " : "") + "caches near point' href='https://www.geocaching.com/seek/nearest.aspx?lat=" + coords.lat + "&lng=" + coords.lng + (that.parameters.filterFinds ? "&f=1" : "") + "' target='_blank' rel='noopener noreferrer'>List caches</a>";
-					},
-					isValid: function(coords, zoom) { return true; }
-				},
-				{
-					name: "Geograph",
-					action: "getGeograph",
-					getHTML: function(coords, zoom, map) {
-						return "<a href='#' title='Show Geograph images near this point' class='gme-event' data-gme-action='getGeograph' data-gme-coords='" + coords.toUrl() + "'>Geograph</a>";
-					},
-					isValid: function(coords, zoom) {
-						return bounds_GB.contains(coords) || bounds_DE.contains(coords) || bounds_IE.contains(coords) || bounds_CI.contains(coords);
-					}
-				},
-				{
-					name: "Directions",
-					getHTML: function(coords, zoom, map) {
-						return "<a title='Launch Google Directions from home to this point' target='_blank' rel='noopener noreferrer' href='https://www.google.com/maps/dir/?api=1&origin=" + gmeConfig.env.home.toUrl() + "&destination=" + coords.toUrl() + "'>Directions</a>";
-					},
-					isValid: function(coords, zoom) {
-						return !!gmeConfig.env.home;
-					}
-				},
-				{
-					name: "Wikimapia",
-					getHTML: function(coords, zoom, map) {
-						var centre = map.getCenter();
-						return "<a title='Go to wikimapia' target='_blank' rel='noopener noreferrer' href='http://wikimapia.org/#lat=" + centre.lat + "&lon=" + centre.lng + "&z=" + zoom + "'>Wikimapia</a>";
-					},
-					isValid: function(coords, zoom) {
-						return true;
-					}
-				},
-				{
-					name: "Marker",
-					getHTML: function(coords, zoom, map) {
-						return "<a title='Drop route marker onto map' href='#' class='gme-event' data-gme-action='dropMarker' data-gme-coords='" + coords.toUrl() + "'>Marker</a>";
-					},
-					isValid: function(coords, zoom) {
-						return true;
-					}
-				},
-				{
-					name: "MAGIC",
-					getHTML: function(coords, zoom, map) {
-						var b = map.getBounds();
-						return "<a title='Show MAGIC map of environmentally sensitive areas' target='_blank' rel='noopener noreferrer' href='http://magic.defra.gov.uk/MagicMap.aspx?srs=WGS84&startscale=" + (Math.cos(map.getCenter().lat * L.LatLng.DEG_TO_RAD) * 684090188 * Math.abs(b.getSouthWest().lng - b.getSouthEast().lng)) / map.getSize().x + "&layers=LandBasedSchemes,12,24:HabitatsAndSpecies,38:Designations,6,10,13,16,34,37,40,72,94&box=" + b.toBBoxString().replace(/,/g, ":") + "'>MAGIC</a>";
-					},
-					isValid: function(coords, zoom) {
-						return that.isInUK(coords);
-					}
-				},
-				{
-					name: "Postcode",
-					getHTML: function(coords, zoom, map) {
-						return "<a title='Fetch location data from postcodes.io' href='#' class='gme-event' data-gme-action='getPostcode' data-gme-coords='" + coords.toUrl() + "'>Postcode</a>";
-					},
-					isValid: function(coords, zoom) {
-						return that.isInUK(coords);
-					}
-				},
-				{
-					name: "Height",
-					getHTML: function(coords, zoom, map) {
-						return "<a title='Height of point above sea level' href='#' class='gme-event' data-gme-action='getHeight' data-gme-coords='" + coords.toUrl() + "'>Height</a>";
-					},
-					isValid: function(coords, zoom) {
-						return (coords.lat > -65 && coords.lat < 83);
-					}
-				},
-				{
-					name: "StreetView",
-					getHTML: function(coords, zoom, map) {
-						return "<a title='Launch Google Streetview' target='_blank' rel='noopener noreferrer' href='https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=" + coords.toUrl() + "'>Streetview</a>";
-					},
-					isValid: function(coords, zoom) {
-						return true;
-					}
-				},
-				{
-					name: "MapApp",
-					getHTML: function(coords, zoom, map) {
-						/* Open Bing Maps app if available, otherwise use a cross-platform Google Maps URI */
-						return "<a title='Launch Bing Maps' href='bingmaps:?cp=" + coords.lat + "~" + coords.lng + "' target='_blank' rel='noopener noreferrer'><a title='Launch Google Maps' href='https://www.google.com/maps/@?api=1&map_action=map&center=" + coords.toUrl() + "&zoom=" + zoom + "' target='_blank' rel='noopener noreferrer'>Maps</a></a>";
-					},
-					isValid: function(coords, zoom) {
-						return true;
-					}
-				}
-			],
-			showRoute: function(e) {
-				L.DomEvent.stopPropagation(e);
-				this.dropDist(e.latlng);
-			},
-			toggleCaches: function() {
-				if (window.MapSettings && MapSettings.MapLayers && MapSettings.MapLayers.AddGeocacheLayer && MapSettings.MapLayers.RemoveGeocacheLayer) {
-					if (MapSettings.MapLayers.Geocache) {
-						MapSettings.MapLayers.RemoveGeocacheLayer();
-						$(".GME_hide").addClass("gme-button-active").attr("title", "Show caches");
-					} else {
-						MapSettings.MapLayers.AddGeocacheLayer();
-						$(".GME_hide").removeClass("gme-button-active").attr("title", "Hide caches");
-					}
-				}
-			},
-			toggleTool: function(mode) {
-				var that = this, widgets = {
-					info: {
-						on: function() {
-							that._map.on("click contextmenu", that.showInfo, that);
-							$("#map_canvas").addClass("gme-xhair");
-							$(".GME_info").addClass("gme-button-active").attr("title", "Disable location info tool");
-						},
-						off: function() {
-							that._map.off("click contextmenu", that.showInfo, that);
-							$("#map_canvas").removeClass("gme-xhair");
-							$(".GME_info").removeClass("gme-button-active").attr("title", "Enable location info tool");
-						}
-					},
-					none: { on: function() { }, off: function() { } },
-					route: {
-						on: function() {
-							that._map.on("click contextmenu", that.showRoute, that);
-							$("#map_canvas").addClass("gme-xhair");
-							$(".GME_route").addClass("gme-button-active").attr("title", "Disable route tool");
-						},
-						off: function() {
-							that._map.off("click contextmenu", that.showRoute, that);
-							$("#map_canvas").removeClass("gme-xhair");
-							$(".GME_route").removeClass("gme-button-active").attr("title", "Enable route tool");
+							alert("Could not recognise grid reference.");
 						}
 					}
 				};
-				if (!widgets[mode]) {
-					return;
-				}
-				widgets[this._clickMode].off();
-				if (mode == this._clickMode) {
-					this._clickMode = "none";
-				} else {
-					this._clickMode = mode;
-					widgets[mode].on();
-				}
 			},
-			search: function(searchVal) {
-				var gr, m, call, callbackPrefix = "GME_search_callback", coords = false, marker, that = this;
-				function searchGS(searchVal) {
-					$(".GME_search_results").addClass("hidden");
-					$.getJSON("/api/geocode", { q: searchVal }, function(a) {
-						if (a.status === "success") {
-							that._map.panTo(new L.LatLng(a.data.lat, a.data.lng));
-						} else {
-							alert("Sorry, no results found for " + searchVal);
+			widget: function() {
+				var locationControlObj = {
+					onAdd: function(map) {
+						var el, tracking = false, container = L.DomUtil.create("div", "leaflet-control-toolbar groundspeak-control-findmylocation gme-left");
+						function located(l) {
+							this.panTo(l.latlng);
 						}
-					});
-				}
-				function makeCallback2(callname) {
-					callbackCount++; return function(json) {
-						var i, j;
-						if (json.geonames && json.geonames.length > 0) {
-							$(".GME_search_list").empty();
-							for (i = 0, j = json.geonames.length; i < j; i++) {
-								$(".GME_search_list").append("<li><a class='gme-event' data-gme-action='panTo' data-gme-coords='" + json.geonames[i].lat + "," + json.geonames[i].lng + "'>" + json.geonames[i].name + ", " + json.geonames[i].adminName1 + ", " + json.geonames[i].countryCode + "</a></li>");
-							}
-							$(".GME_search_results").removeClass("hidden");
-							$(".GME_search_results.ui-collapsible-collapsed a.ui-collapsible-heading-toggle").click();
-							$(".GME_link_GSSearch").off("click");
-							$(".GME_link_GSSearch").click(function() { searchGS(searchVal); });
-							that._map.panTo(new L.LatLng(json.geonames[0].lat, json.geonames[0].lng));
-						} else {
-							searchGS(searchVal);
-						}
-						$("#" + callname).remove();
-						if (window[callname] !== undefined) { delete window[callname]; }
-					};
-				}
-				function makeCallback1(callname) {
-					callbackCount++; return function(json) {
-						var newCall = callbackPrefix + callbackCount;
-						if (json.countryCode) {
-							window[newCall] = makeCallback2(newCall);
-							JSONP("http://api.geonames.org/searchJSON?q=" + encodeURIComponent(searchVal) + "&countryBias=" + json.countryCode + "&maxRows=10&username=gme&callback=" + newCall, newCall);
-						} else {
-							searchGS(searchVal);
-						}
-						$("#" + callname).remove();
-						if (window[callname] !== undefined) { delete window[callname]; }
-					};
-				}
-				if (searchVal.length > 0) {
-					m = searchVal.match(/^\s*(?:z|zoom)\s*(\d\d?)\s*$/i);
-					if (m && m.length === 2) {
-						this._map.setZoom(m[1]);
-						return false;
-					}
-					m = searchVal.match(/^\s*(?:p|plot)(?:\s+r\s?(\d*\.?\d*))?\s+(.*)/);
-					if (m && m.length === 3) {
-						coords = parseCoords(m[2]);
-						if (coords) {
-							if (!isNaN(m[1])) {
-								this.dropMarker(L.latLng(coords.lat, coords.lng), m[1]);
+						function click(e) {
+							L.DomEvent.stopPropagation(e);
+							if (tracking) {
+								map.stopLocate();
+								map.off("locationfound", located);
+								tracking = false;
+								$(".groundspeak-control-findmylocation-lnk").removeClass("gme-button-active");
+								$("#GME_loc").attr("title", "Follow My Location");
 							} else {
-								L.marker(coords, { icon: L.divIcon() }).addTo(this._map).bindPopup(DMM(coords));
+								map.on("locationfound", located);
+								map.locate({ enableHighAccuracy: true, watch: true, timeout: 60000 });
+								tracking = true;
+								$(".groundspeak-control-findmylocation-lnk").addClass("gme-button-active");
+								$("#GME_loc").attr("title", "Stop following");
 							}
-							this._map.panTo(coords);
-							return false;
 						}
+						function click_once(e) {
+							L.DomEvent.stopPropagation(e);
+							this.locate({ setView: true, maxZoom: this.getZoom(), minZoom: this.getZoom(), enableHighAccuracy: true, timeout: 60000 });
+						}
+						el = document.createElement("a");
+						el.id = "GME_loc";
+						el.title = that.parameters.follow ? "Follow My Location" : "Find My Location";
+						el.className = "groundspeak-control-findmylocation-lnk";
+						if (that.parameters.follow) {
+							L.DomEvent.addListener(el, "click", click, map);
+						} else {
+							L.DomEvent.addListener(el, "click", click_once, map);
+						}
+						container.appendChild(el);
+						return container;
 					}
-					m = searchVal.match(/^\s*(GC[0123456789ABCDEFGHJKMNOPQRSTVWXYZ]{1,7})\s*$/i);
-					if (m && m.length === 2) {
-						if (gmeConfig.env.loggedin) {
-							this.panToGC(m[1]);
-							$(".GME_search_results").addClass("hidden");
+				},
+					widgetControlObj = {
+						options: { position: "bottomleft" },
+						onAdd: function(contextmap) {
+							var elem, container = L.DomUtil.create("div", "leaflet-control-gme"), control = this, html = "";
+							function onPopup(e) {
+								if (e.layer._container && /leaflet-popup/.test(e.layer._container.className)) {
+									$(e.layer._contentNode).on("click", ".gme-event", contextmap, mapHandler);
+									$(e.layer._contentNode).on("dragstart", ".gme-draggable-gpx", { line: control._dist_line }, dragGPXHandler);
+								}
+							}
+							function offPopup(e) {
+								if (e.layer._container && /leaflet-popup/.test(e.layer._container.className)) {
+									$(e.layer._contentNode).off("click", ".gme-event", contextmap, mapHandler);
+									$(e.layer._contentNode).off("dragstart", ".gme-draggable-gpx", { line: control._dist_line }, dragGPXHandler);
+								}
+							}
+							function mapHandler(e) {
+								var action = this.getAttribute("data-gme-action"),
+									c1 = this.getAttribute("data-gme-coords"),
+									c2, coords,
+									data = this.getAttribute("data-gme-ref"),
+									layer = this.getAttribute("data-gme-layer");
+								e.stopPropagation();
+								if (action !== "exportDist") {
+									e.preventDefault(e);
+								}
+								if (c1) {
+									c2 = c1.match(/(-?\d{1,2}(\.\d+)?),(-?\d{1,3}(\.\d+)?)/);
+									if (c2 && c2.length === 5 && validCoords(c2[1], c2[3])) {
+										coords = new L.LatLng(c2[1], c2[3]);
+									}
+								}
+								if (action === "clearDist") { control.clearDist(); }
+								if (action === "clearMarkers") { control.clearMarkers(); }
+								if (action === "dropDist" && coords) { control.dropDist(coords); }
+								if (action === "dropMarker" && coords) { control.dropMarker(coords); }
+								if (action === "exportDist") { control.exportDist(this); }
+								if (action === "getGeograph" && coords) { that.getGeograph(coords); }
+								if (action === "getHeight" && coords) { that.getHeight(coords); }
+								if (action === "getPostcode" && coords) { control.getPostcode(coords); }
+								if (action === "panTo" && coords) { e.data.panTo(coords); }
+								if (action === "removeMarker" && data) { control.removeMarker(data); }
+								if (action === "removeDistMarker" && data) { control.removeDistMarker(data); }
+								if (action === "toggleCaches") { control.toggleCaches(); }
+								$(".leaflet-popup-close-button").each(function() { this.click(); });
+							}
+							function dragGPXHandler(e) {
+								e.originalEvent.dataTransfer.effectAllowed = "copy";
+								var plain = e.data.line.getGPX(), data = e.data.line.getData();
+								e.originalEvent.dataTransfer.setData("application/xml-gpx", plain);
+								e.originalEvent.dataTransfer.setData("text/uri-list", data);
+								e.originalEvent.dataTransfer.setData("DownloadURL", "application/xml-gpx:gme-export.gpx:" + data);
+								e.originalEvent.dataTransfer.setData("text/plain", plain);
+							}
+							function widgetHandler(e) {
+								var action = this.getAttribute("data-gme-action");
+								e.stopPropagation();
+								if (action === "panToHome") { control.panToHome(); }
+								if (action === "toggleInfo") { control.toggleTool("info"); }
+								if (action === "toggleRoute") { control.toggleTool("route"); }
+								if (action === "toggleCaches") { control.toggleCaches(); }
+							}
+							this._map = contextmap;
+							this._map.infoMode = false;
+							this._map.routeMode = false;
+							this._markers = L.layerGroup().addTo(contextmap);
+							html = "<button type='button' class=\'GME_info gme-button gme-button-l\' title=\'Enable location info tool\' data-gme-action=\'toggleInfo\'></button>";
+							html += "<button type='button' class=\'GME_hide gme-button\' title=\'Hide caches\' data-gme-action=\'toggleCaches\'></button>";
+							html += "<button type='button' class=\'GME_route gme-button\' title=\'Enable route tool\' data-gme-action=\'toggleRoute\'></button>";
+							if (gmeConfig.env.home) {
+								html += "<button type='button' title=\'Go to home location\' class=\'GME_home gme-button\' data-gme-action=\'panToHome\'></button>";
+							}
+							if (gmeConfig.parameters.osgbSearch) {
+								$(".GME_search_results").on("click", ".gme-event", contextmap, mapHandler);
+							}
+							if (gmeConfig.env.storage) {
+								html += "<a class=\'GME_config gme-button\' title=\'Configure Geocaching Map Enhancements\' href=\'#GME_config\'></a>";
+							}
+							container.innerHTML = html;
+							$(container.lastChild).addClass("gme-button-r");
+							container.innerHTML += "<span class=\'gme-button gme-button-l gme-button-r gme-scale-container\' title=\'Approximate width of the full map view\' style=\'cursor:help;\'>Width: <span class=\'gme-scale\'>-</span></span><span class=\'gme-distance-container gme-button gme-button-r\' title=\'Measured distance\'>Route: <span class=\'gme-distance\'>" + formatDistance(0) + "</span></span>";
+							contextmap.addControl(new L.GME_ZoomWarning()).on("layeradd", onPopup).on("layerremove", offPopup).on("viewreset", this.updateScale, this);
+							$(container).on("click", ".gme-button", this, widgetHandler);
+							$(window).on("resize", this, (function(context) { var t = { timer: null }; return function() { context.updateScale(context._map, t); }; }(this)));
+							return container;
+						},
+						clearDist: function() {
+							this._dist_line.off("gme-length");
+							this._map.removeLayer(this._dist_line);
+							delete this._dist_line;
+							$(".gme-distance-container").removeClass("show");
+							$(".gme-distance").html(formatDistance(0));
+							$(".gme-scale-container").addClass("gme-button-r");
+						},
+						clearMarkers: function() {
+							this._markers.clearLayers();
+						},
+						dropDist: function(ll) {
+							if (!validCoords(ll)) { return; }
+							var dist, formatted;
+							if (this._dist_line === undefined) {
+								this._dist_line = new L.GME_DistLine([ll], { clickable: false });
+								this._dist_line.on("gme-length", function(e) { $(this._map._container).find(".gme-distance").html(formatDistance(e.length)); });
+								this._map.addLayer(this._dist_line);
+								$(this._map._container).find(".gme-distance-container").addClass("show");
+								$(this._map._container).find(".gme-scale-container").removeClass("gme-button-r");
+							} else {
+								this._dist_line.addLatLng(ll);
+							}
+						},
+						exportDist: function(e) {
+							if (!this._dist_line) { return; }
+							e.download = "ExportedRoute.gpx";
+							e.href = "data:application/xml-gpx," + encodeURIComponent(this._dist_line.getGPX());
 							return false;
+						},
+						dropMarker: function(ll, rad) {
+							if (!validCoords(ll)) { return; }
+							var circle,
+								defaultRadius = 0.161,
+								group,
+								label = "Marker",
+								m = 1000,
+								r, radius, raw,
+								unit = "km";
+							if (that.parameters.measure !== "metric") {
+								unit = "miles";
+								defaultRadius = 0.1;
+								m = 1609.344;
+							}
+							radius = defaultRadius;
+							if (!isNaN(rad)) {
+								radius = rad * 1;
+							} else {
+								raw = window.prompt("Radius in " + unit + " [, label]", defaultRadius).match(/([\d]*\.?[\d]*)\s*,?\s*(.*)/);
+								if (raw) {
+									if (raw.length === 3) {
+										radius = raw[1] * 1;
+										label = raw[2] || label;
+									} else {
+										label = raw;
+									}
+								}
+							}
+							if (radius) {
+								radius *= m;
+								if (isNaN(radius)) { radius = 161; }
+							} else {
+								radius = 161;
+							}
+							circle = new L.Circle(ll, radius, { weight: 2 });
+							group = new L.LayerGroup([circle, new L.CircleMarker(ll, { weight: 2, radius: 3 })]);
+							this._markers.addLayer(group);
+							r = (radius / m).toFixed(3) + " " + unit;
+							circle.bindPopup("<p><strong>" + label + "</strong><br/>Radius: " + r + "<br/>Centre: decimal " + ll.toUrl() + "<br/><strong>" + DMM(ll) + "</strong><br/><span style='float:right;'><a class='gme-event' data-gme-action='removeMarker' data-gme-ref='" + group._leaflet_id + "'>Clear</a>, <a class='gme-event' data-gme-action='clearMarkers'>Clear All</a></span></p>");
+						},
+						getPostcode: function(coords) {
+							var that = this, callprefix = "GME_postcode_callback", call;
+							function makeCallback(callname) {
+								callbackCount++; return function(json) {
+									var m;
+									if (json !== undefined && json.status === 200) {
+										if (json.result && json.result.length > 0) {
+											m = "<p>" + json.result[0].postcode + (json.result[0].parish ? (", " + json.result[0].parish) : "") + (json.result[0].admin_ward ? (", " + json.result[0].admin_ward) : "") + "</p>";
+										} else {
+											m = "<p>No postcode found for this location.<br />Is it within 500m of an occupied building?</p>";
+										}
+									} else {
+										m = "<p>Error fetching data from postcodes.io</p>";
+									}
+									if (json.result && !isNaN(json.result[0].latitude) && !isNaN(json.result[0].longitude)) {
+										L.popup().setLatLng({ lat: json.result[0].latitude, lng: json.result[0].longitude }).setContent(m).openOn(that._map);
+									} else {
+										$.fancybox(m);
+									}
+									$("#" + callname).remove();
+									if (window[callname] !== undefined) { delete window[callname]; }
+								};
+							}
+							if (validCoords(coords)) {
+								call = callprefix + callbackCount;
+								window[call] = makeCallback(call);
+								JSONP("https://api.postcodes.io/postcodes/lon/" + coords.lng + "/lat/" + coords.lat + "?radius=500&limit=1&callback=" + call, call);
+							} else {
+								console.error("GME: Bad coordinates to getPostcode");
+							}
+						},
+						panToHome: function() {
+							if (gmeConfig.env.home) {
+								this._map.panTo(gmeConfig.env.home);
+								return true;
+							}
+							return false;
+						},
+						removeDistMarker: function(mark) {
+							if (this._dist_line) {
+								this._dist_line.removePt(mark);
+								$(this._map._container).find(".gme-distance").html(formatDistance(this._dist_line.getLength()));
+							}
+						},
+						removeMarker: function(mark) {
+							this._markers.removeLayer(this._markers._layers[mark]);
+						},
+						removeMarkers: function(mark) {
+							this._markers.clearLayer(this._markers._layers[mark]);
+						},
+						showInfo: function(e) {
+							var control = this, popupContent = "<p>", popup = new L.Popup(), i;
+
+							for (i = 0; i < this.tools.length; i++) {
+								if (this.tools[i].isValid(e.latlng, control._map.getZoom())) {
+									popupContent += this.tools[i].getHTML(e.latlng, control._map.getZoom(), control._map) + " ";
+								}
+							}
+							popupContent += "</p>";
+
+							popup.setLatLng(e.latlng);
+							popup.setContent(popupContent);
+							control._map.addLayer(popup);
+						},
+						tools: [
+							{
+								name: "Coords",
+								getHTML: function(coords, zoom, map) {
+									var ll = coords.toUrl();
+									return "<strong>" + DMM(coords) + "</strong><br/>Dec: <a href='geo:" + ll + "?z=" + zoom + "'>" + ll + "</a></br>";
+								},
+								isValid: function(coords, zoom) { return true; }
+							},
+							{
+								name: "List caches",
+								getHTML: function(coords, zoom, map) {
+									return "<a title='List " + (that.parameters.filterFinds ? "unfound " : "") + "caches near point' href='https://www.geocaching.com/seek/nearest.aspx?lat=" + coords.lat + "&lng=" + coords.lng + (that.parameters.filterFinds ? "&f=1" : "") + "' target='_blank' rel='noopener noreferrer'>List caches</a>";
+								},
+								isValid: function(coords, zoom) { return true; }
+							},
+							{
+								name: "Geograph",
+								action: "getGeograph",
+								getHTML: function(coords, zoom, map) {
+									return "<a href='#' title='Show Geograph images near this point' class='gme-event' data-gme-action='getGeograph' data-gme-coords='" + coords.toUrl() + "'>Geograph</a>";
+								},
+								isValid: function(coords, zoom) {
+									return bounds_GB.contains(coords) || bounds_DE.contains(coords) || bounds_IE.contains(coords) || bounds_CI.contains(coords);
+								}
+							},
+							{
+								name: "Directions",
+								getHTML: function(coords, zoom, map) {
+									return "<a title='Launch Google Directions from home to this point' target='_blank' rel='noopener noreferrer' href='https://www.google.com/maps/dir/?api=1&origin=" + gmeConfig.env.home.toUrl() + "&destination=" + coords.toUrl() + "'>Directions</a>";
+								},
+								isValid: function(coords, zoom) {
+									return !!gmeConfig.env.home;
+								}
+							},
+							{
+								name: "Wikimapia",
+								getHTML: function(coords, zoom, map) {
+									var centre = map.getCenter();
+									return "<a title='Go to wikimapia' target='_blank' rel='noopener noreferrer' href='http://wikimapia.org/#lat=" + centre.lat + "&lon=" + centre.lng + "&z=" + zoom + "'>Wikimapia</a>";
+								},
+								isValid: function(coords, zoom) {
+									return true;
+								}
+							},
+							{
+								name: "Marker",
+								getHTML: function(coords, zoom, map) {
+									return "<a title='Drop route marker onto map' href='#' class='gme-event' data-gme-action='dropMarker' data-gme-coords='" + coords.toUrl() + "'>Marker</a>";
+								},
+								isValid: function(coords, zoom) {
+									return true;
+								}
+							},
+							{
+								name: "MAGIC",
+								getHTML: function(coords, zoom, map) {
+									var b = map.getBounds();
+									return "<a title='Show MAGIC map of environmentally sensitive areas' target='_blank' rel='noopener noreferrer' href='http://magic.defra.gov.uk/MagicMap.aspx?srs=WGS84&startscale=" + (Math.cos(map.getCenter().lat * L.LatLng.DEG_TO_RAD) * 684090188 * Math.abs(b.getSouthWest().lng - b.getSouthEast().lng)) / map.getSize().x + "&layers=LandBasedSchemes,12,24:HabitatsAndSpecies,38:Designations,6,10,13,16,34,37,40,72,94&box=" + b.toBBoxString().replace(/,/g, ":") + "'>MAGIC</a>";
+								},
+								isValid: function(coords, zoom) {
+									return that.isInUK(coords);
+								}
+							},
+							{
+								name: "Postcode",
+								getHTML: function(coords, zoom, map) {
+									return "<a title='Fetch location data from postcodes.io' href='#' class='gme-event' data-gme-action='getPostcode' data-gme-coords='" + coords.toUrl() + "'>Postcode</a>";
+								},
+								isValid: function(coords, zoom) {
+									return that.isInUK(coords);
+								}
+							},
+							{
+								name: "Height",
+								getHTML: function(coords, zoom, map) {
+									return "<a title='Height of point above sea level' href='#' class='gme-event' data-gme-action='getHeight' data-gme-coords='" + coords.toUrl() + "'>Height</a>";
+								},
+								isValid: function(coords, zoom) {
+									return (coords.lat > -65 && coords.lat < 83);
+								}
+							},
+							{
+								name: "StreetView",
+								getHTML: function(coords, zoom, map) {
+									return "<a title='Launch Google Streetview' target='_blank' rel='noopener noreferrer' href='https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=" + coords.toUrl() + "'>Streetview</a>";
+								},
+								isValid: function(coords, zoom) {
+									return true;
+								}
+							},
+							{
+								name: "MapApp",
+								getHTML: function(coords, zoom, map) {
+									/* Open Bing Maps app if available, otherwise use a cross-platform Google Maps URI */
+									return "<a title='Launch Bing Maps' href='bingmaps:?cp=" + coords.lat + "~" + coords.lng + "' target='_blank' rel='noopener noreferrer'><a title='Launch Google Maps' href='https://www.google.com/maps/@?api=1&map_action=map&center=" + coords.toUrl() + "&zoom=" + zoom + "' target='_blank' rel='noopener noreferrer'>Maps</a></a>";
+								},
+								isValid: function(coords, zoom) {
+									return true;
+								}
+							}
+						],
+						showRoute: function(e) {
+							L.DomEvent.stopPropagation(e);
+							this.dropDist(e.latlng);
+						},
+						toggleCaches: function() {
+							if (window.MapSettings && MapSettings.MapLayers && MapSettings.MapLayers.AddGeocacheLayer && MapSettings.MapLayers.RemoveGeocacheLayer) {
+								if (MapSettings.MapLayers.Geocache) {
+									MapSettings.MapLayers.RemoveGeocacheLayer();
+									$(".GME_hide").addClass("gme-button-active").attr("title", "Show caches");
+								} else {
+									MapSettings.MapLayers.AddGeocacheLayer();
+									$(".GME_hide").removeClass("gme-button-active").attr("title", "Hide caches");
+								}
+							}
+						},
+						toggleTool: function(mode) {
+							var that = this, widgets = {
+								info: {
+									on: function() {
+										that._map.on("click contextmenu", that.showInfo, that);
+										$("#map_canvas").addClass("gme-xhair");
+										$(".GME_info").addClass("gme-button-active").attr("title", "Disable location info tool");
+									},
+									off: function() {
+										that._map.off("click contextmenu", that.showInfo, that);
+										$("#map_canvas").removeClass("gme-xhair");
+										$(".GME_info").removeClass("gme-button-active").attr("title", "Enable location info tool");
+									}
+								},
+								none: { on: function() { }, off: function() { } },
+								route: {
+									on: function() {
+										that._map.on("click contextmenu", that.showRoute, that);
+										$("#map_canvas").addClass("gme-xhair");
+										$(".GME_route").addClass("gme-button-active").attr("title", "Disable route tool");
+									},
+									off: function() {
+										that._map.off("click contextmenu", that.showRoute, that);
+										$("#map_canvas").removeClass("gme-xhair");
+										$(".GME_route").removeClass("gme-button-active").attr("title", "Enable route tool");
+									}
+								}
+							};
+							if (!widgets[mode]) {
+								return;
+							}
+							widgets[this._clickMode].off();
+							if (mode == this._clickMode) {
+								this._clickMode = "none";
+							} else {
+								this._clickMode = mode;
+								widgets[mode].on();
+							}
+						},
+						search: function(searchVal) {
+							var gr, m, call, callbackPrefix = "GME_search_callback", coords = false, marker, that = this;
+							function searchGS(searchVal) {
+								$(".GME_search_results").addClass("hidden");
+								$.getJSON("/api/geocode", { q: searchVal }, function(a) {
+									if (a.status === "success") {
+										that._map.panTo(new L.LatLng(a.data.lat, a.data.lng));
+									} else {
+										alert("Sorry, no results found for " + searchVal);
+									}
+								});
+							}
+							function makeCallback2(callname) {
+								callbackCount++; return function(json) {
+									var i, j;
+									if (json.geonames && json.geonames.length > 0) {
+										$(".GME_search_list").empty();
+										for (i = 0, j = json.geonames.length; i < j; i++) {
+											$(".GME_search_list").append("<li><a class='gme-event' data-gme-action='panTo' data-gme-coords='" + json.geonames[i].lat + "," + json.geonames[i].lng + "'>" + json.geonames[i].name + ", " + json.geonames[i].adminName1 + ", " + json.geonames[i].countryCode + "</a></li>");
+										}
+										$(".GME_search_results").removeClass("hidden");
+										$(".GME_search_results.ui-collapsible-collapsed a.ui-collapsible-heading-toggle").click();
+										$(".GME_link_GSSearch").off("click");
+										$(".GME_link_GSSearch").click(function() { searchGS(searchVal); });
+										that._map.panTo(new L.LatLng(json.geonames[0].lat, json.geonames[0].lng));
+									} else {
+										searchGS(searchVal);
+									}
+									$("#" + callname).remove();
+									if (window[callname] !== undefined) { delete window[callname]; }
+								};
+							}
+							function makeCallback1(callname) {
+								callbackCount++; return function(json) {
+									var newCall = callbackPrefix + callbackCount;
+									if (json.countryCode) {
+										window[newCall] = makeCallback2(newCall);
+										JSONP("http://api.geonames.org/searchJSON?q=" + encodeURIComponent(searchVal) + "&countryBias=" + json.countryCode + "&maxRows=10&username=gme&callback=" + newCall, newCall);
+									} else {
+										searchGS(searchVal);
+									}
+									$("#" + callname).remove();
+									if (window[callname] !== undefined) { delete window[callname]; }
+								};
+							}
+							if (searchVal.length > 0) {
+								m = searchVal.match(/^\s*(?:z|zoom)\s*(\d\d?)\s*$/i);
+								if (m && m.length === 2) {
+									this._map.setZoom(m[1]);
+									return false;
+								}
+								m = searchVal.match(/^\s*(?:p|plot)(?:\s+r\s?(\d*\.?\d*))?\s+(.*)/);
+								if (m && m.length === 3) {
+									coords = parseCoords(m[2]);
+									if (coords) {
+										if (!isNaN(m[1])) {
+											this.dropMarker(L.latLng(coords.lat, coords.lng), m[1]);
+										} else {
+											L.marker(coords, { icon: L.divIcon() }).addTo(this._map).bindPopup(DMM(coords));
+										}
+										this._map.panTo(coords);
+										return false;
+									}
+								}
+								m = searchVal.match(/^\s*(GC[0123456789ABCDEFGHJKMNOPQRSTVWXYZ]{1,7})\s*$/i);
+								if (m && m.length === 2) {
+									if (gmeConfig.env.loggedin) {
+										this.panToGC(m[1]);
+										$(".GME_search_results").addClass("hidden");
+										return false;
+									}
+									alert("You must be logged in to allow GME to get cache coordinates");
+									return false;
+								}
+								gr = parseGR(searchVal);
+								if (gr) {
+									this._map.panTo(new L.LatLng(gr.lat, gr.lng));
+								} else {
+									call = callbackPrefix + callbackCount;
+									window[call] = makeCallback1(call);
+									JSONP("http://api.geonames.org/countryCodeJSON?lat=" + this._map.getCenter().lat + "&lng=" + this._map.getCenter().lng + "&username=gme&radius=100&callback=" + call, call);
+								}
+							}
+							return false;
+						},
+						panToGC: function(gc) {
+							var req = new XMLHttpRequest(),
+								map = this._map || e;
+							req.addEventListener("load", function(e) {
+								var r = req.responseText,
+									k = r.indexOf("mapLatLng = {"),
+									c;
+								if (req.status < 400) {
+									try {
+										c = JSON.parse(r.substring(k + 12, r.indexOf("}", k) + 1));
+										map.panTo(new L.LatLng(c.lat, c.lng));
+									} catch (e) {
+										console.warn("GME: Couldn't extract cache coordinates:" + e + "\nReceived " + r.length + " bytes, coords at " + k);
+									}
+								} else {
+									if (req.status === 404) {
+										alert("Sorry, cache " + gc + " doesn't seem to exist.");
+									}
+									console.warn("GME: error retrieving cache page to find coords for " + gc + ": " + req.statusText);
+								}
+							});
+							req.open("GET", "https://www.geocaching.com/geocache/" + gc);
+							req.send();
+						},
+						updateScale: function(e, timer) {
+							var map = this._map || e;
+
+							if (!map.getBounds) {
+								console.warn("updateScale didn't have working map");
+								return;
+							}
+
+							function updateMap() {
+								var bound = map.getBounds();
+								var width = formatDistance(Math.cos(map.getCenter().lat * L.LatLng.DEG_TO_RAD) * 111319.49079327358 * Math.abs(bound.getSouthWest().lng - bound.getSouthEast().lng));
+								$(this._container).find(".gme-scale").html(width);
+							}
+
+							if (timer !== undefined) {
+								window.clearTimeout(timer.timer);
+								timer.timer = window.setTimeout(function() { map.whenReady(updateMap); return false; }, 200);
+							} else {
+								map.whenReady(updateMap);
+							}
+						},
+						_clickMode: "none"
+					},
+					zoomWarningObj = {
+						options: { position: "topleft" },
+						onAdd: function(map) {
+							var c = L.DomUtil.create("div", "leaflet-control-zoomwarning gme-left");
+							function checkZoom() {
+								if (map.getZoom() > map.layersMaxZoom) {
+									map.setZoom(map.layersMaxZoom);
+								}
+								if (map.getZoom() < map.layersMinZoom) {
+									map.setZoom(map.layersMinZoom);
+								}
+								if (this.getZoom() > 18) {
+									c.style.display = "block";
+									if (typeof amplify === "object" && typeof amplify.store === "function" && amplify.store("ShowPanel") === false) {
+										$(".leaflet-control-zoomwarning").css("left", "30px");
+									}
+								} else {
+									c.style.display = "none";
+								}
+							}
+							c.innerHTML = "<a class='gme-button gme-button-l gme-button-r' title='Caches not visible at this zoom level'></a>";
+							c.style.display = (map.getZoom() > 18) ? "block" : "none";
+							map.on("zoomend", checkZoom);
+							return c;
 						}
-						alert("You must be logged in to allow GME to get cache coordinates");
+					};
+
+				function GME_load_widget(map) {
+					var control = new L.GME_Widget().addTo(map);
+					$(control._container).addClass("gme-left").css("top", "20px");
+					$(".groundspeak-control-findmylocation").remove();
+					if (L.GME_FollowMyLocationControl) {
+						map.addControl(new L.GME_FollowMyLocationControl());
+					}
+					$(".leaflet-control-scale").addClass("gme-control-scale");
+					$("a.ToggleSidebar").unbind();
+					$("a.ToggleSidebar").click(function(a) {
+						a.preventDefault();
+						if (window.pnlOpen) {
+							window.pnlOpen = false;
+							$(".Sidebar").animate({ left: "-355px" }, 500);
+							$(".leaflet-control-zoom,.leaflet-control-toolbar,.leaflet-control-scale,.gme-left").animate({ left: "30px" }, 500);
+							$(this).removeClass("Open");
+						} else {
+							window.pnlOpen = true;
+							$(".Sidebar").animate({ left: "0" }, 500);
+							$(".leaflet-control-zoom,.leaflet-control-toolbar,.leaflet-control-scale,.gme-left").animate({ left: "385px" }, 500);
+							$(this).addClass("Open");
+						}
+						if (typeof amplify === "object" && typeof amplify.store === "function") {
+							amplify.store("ShowPanel", window.pnlOpen);
+						}
 						return false;
-					}
-					gr = parseGR(searchVal);
-					if (gr) {
-						this._map.panTo(new L.LatLng(gr.lat, gr.lng));
-					} else {
-						call = callbackPrefix + callbackCount;
-						window[call] = makeCallback1(call);
-						JSONP("http://api.geonames.org/countryCodeJSON?lat=" + this._map.getCenter().lat + "&lng=" + this._map.getCenter().lng + "&username=gme&radius=100&callback=" + call, call);
-					}
+					});
+					// Trigger reset to update scale and width controls.
+					map.fireEvent("viewreset");
+					return control;
 				}
-				return false;
 			},
-			panToGC: function(gc) {
-				var req = new XMLHttpRequest(),
-					map = this._map || e;
-				req.addEventListener("load", function(e) {
-					var r = req.responseText,
-						k = r.indexOf("mapLatLng = {"),
-						c;
-					if (req.status < 400) {
-						try {
-							c = JSON.parse(r.substring(k + 12, r.indexOf("}", k) + 1));
-							map.panTo(new L.LatLng(c.lat, c.lng));
-						} catch (e) {
-							console.warn("GME: Couldn't extract cache coordinates:" + e + "\nReceived " + r.length + " bytes, coords at " + k);
+			xhr: function(e) {
+				var node = document.getElementById("gme_jsonp_node"),
+					callback = node.getAttribute("data-gme-callback"),
+					url = node.text,
+					details = {
+						"method": "GET",
+						"url": url,
+						"onload": function(response) {
+							var x = response.responseText,
+								call = x.match(/([a-zA-Z_$][0-9a-zA-Z_$]*)\s*\(/),
+								s;
+							if (call && call.length === 2 && call[1] === callback) {
+								s = document.getElementById("gme_jsonp_node");
+								s.setAttribute("data-gme-callback", callback);
+								s.text = x.substring(x.indexOf("(") + 1, x.lastIndexOf(")"));
+								document.dispatchEvent(new Event("GME_XHR_callback"));
+							} else {
+								console.warn("Received: " + x);
+							}
 						}
-					} else {
-						if (req.status === 404) {
-							alert("Sorry, cache " + gc + " doesn't seem to exist.");
-						}
-						console.warn("GME: error retrieving cache page to find coords for " + gc + ": " + req.statusText);
-					}
-				});
-				req.open("GET", "https://www.geocaching.com/geocache/" + gc);
-				req.send();
-			},
-			updateScale: function(e, timer) {
-				var map = this._map || e;
-
-				if (!map.getBounds) {
-					console.warn("updateScale didn't have working map");
-					return;
-				}
-
-				function updateMap() {
-					var bound = map.getBounds();
-					var width = formatDistance(Math.cos(map.getCenter().lat * L.LatLng.DEG_TO_RAD) * 111319.49079327358 * Math.abs(bound.getSouthWest().lng - bound.getSouthEast().lng));
-					$(this._container).find(".gme-scale").html(width);
-				}
-
-				if (timer !== undefined) {
-					window.clearTimeout(timer.timer);
-					timer.timer = window.setTimeout(function() { map.whenReady(updateMap); return false; }, 200);
+					};
+				if (gmeResources.env.xhr === 'GM4') {
+					// GreaseMonkey 4+
+					GM.xmlHttpRequest(details);
 				} else {
-					map.whenReady(updateMap);
-				}
-			},
-			_clickMode: "none"
-		},
-		zoomWarningObj = {
-			options: { position: "topleft" },
-			onAdd: function(map) {
-				var c = L.DomUtil.create("div", "leaflet-control-zoomwarning gme-left");
-				function checkZoom() {
-					if (map.getZoom() > map.layersMaxZoom) {
-						map.setZoom(map.layersMaxZoom);
-					}
-					if (map.getZoom() < map.layersMinZoom) {
-						map.setZoom(map.layersMinZoom);
-					}
-					if (this.getZoom() > 18) {
-						c.style.display = "block";
-						if (typeof amplify === "object" && typeof amplify.store === "function" && amplify.store("ShowPanel") === false) {
-							$(".leaflet-control-zoomwarning").css("left", "30px");
-						}
-					} else {
-						c.style.display = "none";
-					}
-				}
-				c.innerHTML = "<a class='gme-button gme-button-l gme-button-r' title='Caches not visible at this zoom level'></a>";
-				c.style.display = (map.getZoom() > 18) ? "block" : "none";
-				map.on("zoomend", checkZoom);
-				return c;
-			}
-		};
-
-	function GME_load_widget(map) {
-		var control = new L.GME_Widget().addTo(map);
-		$(control._container).addClass("gme-left").css("top", "20px");
-		$(".groundspeak-control-findmylocation").remove();
-		if (L.GME_FollowMyLocationControl) {
-			map.addControl(new L.GME_FollowMyLocationControl());
-		}
-		$(".leaflet-control-scale").addClass("gme-control-scale");
-		$("a.ToggleSidebar").unbind();
-		$("a.ToggleSidebar").click(function(a) {
-			a.preventDefault();
-			if (window.pnlOpen) {
-				window.pnlOpen = false;
-				$(".Sidebar").animate({ left: "-355px" }, 500);
-				$(".leaflet-control-zoom,.leaflet-control-toolbar,.leaflet-control-scale,.gme-left").animate({ left: "30px" }, 500);
-				$(this).removeClass("Open");
-			} else {
-				window.pnlOpen = true;
-				$(".Sidebar").animate({ left: "0" }, 500);
-				$(".leaflet-control-zoom,.leaflet-control-toolbar,.leaflet-control-scale,.gme-left").animate({ left: "385px" }, 500);
-				$(this).addClass("Open");
-			}
-			if (typeof amplify === "object" && typeof amplify.store === "function") {
-				amplify.store("ShowPanel", window.pnlOpen);
-			}
-			return false;
-		});
-		// Trigger reset to update scale and width controls.
-		map.fireEvent("viewreset");
-		return control;
-	}
-},
-xhr: function (e) {
-	var node = document.getElementById("gme_jsonp_node"),
-		callback = node.getAttribute("data-gme-callback"),
-		url = node.text,
-		details = {
-			"method": "GET",
-			"url": url,
-			"onload": function(response) {
-				var x = response.responseText,
-					call = x.match(/([a-zA-Z_$][0-9a-zA-Z_$]*)\s*\(/),
-					s;
-				if (call && call.length === 2 && call[1] === callback) {
-					s = document.getElementById("gme_jsonp_node");
-					s.setAttribute("data-gme-callback", callback);
-					s.text = x.substring(x.indexOf("(") + 1, x.lastIndexOf(")"));
-					document.dispatchEvent(new Event("GME_XHR_callback"));
-				} else {
-					console.warn("Received: " + x);
+					// Other userscript engines
+					setTimeout(function() {
+						GM_xmlhttpRequest(details);
+					}, 0);
 				}
 			}
-		};
-	if (gmeResources.env.xhr === 'GM4') {
-		// GreaseMonkey 4+
-		GM.xmlHttpRequest(details);
-	} else {
-		// Other userscript engines
-		setTimeout(function() {
-			GM_xmlhttpRequest(details);
-		}, 0);
-	}
-}
 		}
 	},
-pageTests = [
-	["listing", /\/geocache\/GC|\/seek\/cache_details\.aspx|\/seek\/cache_details2\.aspx/],
-	["maps", /\/map\//],
-	["hide", /\/hide\/planning\.aspx/],
-	["type", /\/hide\/typelocation\.aspx/],
-	["hide", /\/hide\/waypoints\.aspx/],
-	["seek", /\/seek\/$|\/seek\/default\.aspx/],
-	["track", /\/track\/map_gm\.aspx/]
-],
-	i, target, target2, targets;
+		pageTests = [
+			["listing", /\/geocache\/GC|\/seek\/cache_details\.aspx|\/seek\/cache_details2\.aspx/],
+			["maps", /\/map\//],
+			["hide", /\/hide\/planning\.aspx/],
+			["type", /\/hide\/typelocation\.aspx/],
+			["hide", /\/hide\/waypoints\.aspx/],
+			["seek", /\/seek\/$|\/seek\/default\.aspx/],
+			["track", /\/track\/map_gm\.aspx/]
+		],
+		i, target, target2, targets;
 
-function buildScript() {
-	var j, script = "";
-	for (j = 1; j < arguments.length; j++) {
-		if (typeof arguments[j] === "string" && gmeResources.script.hasOwnProperty(arguments[j])) {
-			script += unwrapFunction(gmeResources.script[arguments[j]]);
-			gmeResources.env.init.push(arguments[j]);
+	function buildScript() {
+		var j, script = "";
+		for (j = 1; j < arguments.length; j++) {
+			if (typeof arguments[j] === "string" && gmeResources.script.hasOwnProperty(arguments[j])) {
+				script += unwrapFunction(gmeResources.script[arguments[j]]);
+				gmeResources.env.init.push(arguments[j]);
+			}
 		}
-	}
-	insertScript(
-		'var GME;\
+		insertScript(
+			'var GME;\
 		(function () {\
 			"use strict";\
 			function GeocachingMapEnhancements() {\
 				var gmeConfig = ' + JSON.stringify({ env: gmeResources.env, parameters: gmeResources.parameters }) + ";" +
-		script +
-		'}\
+			script +
+			'}\
 			GME = new GeocachingMapEnhancements();\
 			console.info("Geocaching Map Enhancements v' + gmeResources.parameters.version + ' loaded.");\
 		}());',
-		arguments[0]
-	);
-}
-
-function insertCSS(css) {
-	if (typeof css !== "string") { console.warn("GME: insertCSS not called with string: " + typeof css); return; }
-	var style = document.createElement('style');
-	style.type = 'text/css';
-	if (style.styleSheet) {
-		style.styleSheet.cssText = css;
-	} else {
-		style.appendChild(document.createTextNode(css));
+			arguments[0]
+		);
 	}
-	document.documentElement.firstChild.appendChild(style);
-}
 
-function insertPage(div, src, title, back) {
-	if (div && typeof src === 'string') {
-		var d = document.createElement('div');
-		d.id = div;
-		d.title = title || '';
-		d.innerHTML = ['<div><a href="#', back || '', '" title="Close" class="gme-close-dialog">X</a><header>', d.title, '</header><div class="gme-modal-content">', src, '</div></div>'].join('');
-		d.className = 'gme-modalDialog';
-		document.documentElement.lastChild.appendChild(d);
-	} else {
-		console.warn("GME: insertPage not called with correct parameters.");
+	function insertCSS(css) {
+		if (typeof css !== "string") { console.warn("GME: insertCSS not called with string: " + typeof css); return; }
+		var style = document.createElement('style');
+		style.type = 'text/css';
+		if (style.styleSheet) {
+			style.styleSheet.cssText = css;
+		} else {
+			style.appendChild(document.createTextNode(css));
+		}
+		document.documentElement.firstChild.appendChild(style);
 	}
-}
 
-function insertScript(src, id) {
-	console.log("GME: Inserting script: " + id);
-	//	console.debug(src);
-	if (typeof src !== "string") { console.warn("GME: insertScript not called with string."); return; }
-	var s = document.createElement("script");
-	s.type = "text/javascript";
-	s.text = src;
-	if (id) {
-		s.id = id;
+	function insertPage(div, src, title, back) {
+		if (div && typeof src === 'string') {
+			var d = document.createElement('div');
+			d.id = div;
+			d.title = title || '';
+			d.innerHTML = ['<div><a href="#', back || '', '" title="Close" class="gme-close-dialog">X</a><header>', d.title, '</header><div class="gme-modal-content">', src, '</div></div>'].join('');
+			d.className = 'gme-modalDialog';
+			document.documentElement.lastChild.appendChild(d);
+		} else {
+			console.warn("GME: insertPage not called with correct parameters.");
+		}
 	}
-	document.documentElement.firstChild.appendChild(s);
-	document.documentElement.firstChild.removeChild(s);
-}
 
-function unwrapFunction(fn) {
-	var text;
-	if (typeof fn === "function") {
-		text = fn.toString();
-		return text.slice(text.indexOf("{") + 1, text.lastIndexOf("}"));
+	function insertScript(src, id) {
+		console.log("GME: Inserting script: " + id);
+		//	console.debug(src);
+		if (typeof src !== "string") { console.warn("GME: insertScript not called with string."); return; }
+		var s = document.createElement("script");
+		s.type = "text/javascript";
+		s.text = src;
+		if (id) {
+			s.id = id;
+		}
+		document.documentElement.firstChild.appendChild(s);
+		document.documentElement.firstChild.removeChild(s);
 	}
-	return fn;
-}
 
-function xhr(e) {
-	var node = document.getElementById("gme_jsonp_node"),
-		callback = node.getAttribute("data-gme-callback"),
-		url = node.text,
-		details = {
-			"method": "GET",
-			"url": url,
-			"onload": function(response) {
-				var x = response.responseText,
-					call = x.match(/([a-zA-Z_$][0-9a-zA-Z_$]*)\s*\(/),
-					s;
-				if (call && call.length === 2 && call[1] === callback) {
-					s = document.getElementById("gme_jsonp_node");
-					s.setAttribute("data-gme-callback", callback);
-					s.text = x.substring(x.indexOf("(") + 1, x.lastIndexOf(")"));
-					document.dispatchEvent(new Event("GME_XHR_callback"));
-				} else {
-					console.warn("Received: " + x);
+	function unwrapFunction(fn) {
+		var text;
+		if (typeof fn === "function") {
+			text = fn.toString();
+			return text.slice(text.indexOf("{") + 1, text.lastIndexOf("}"));
+		}
+		return fn;
+	}
+
+	function xhr(e) {
+		var node = document.getElementById("gme_jsonp_node"),
+			callback = node.getAttribute("data-gme-callback"),
+			url = node.text,
+			details = {
+				"method": "GET",
+				"url": url,
+				"onload": function(response) {
+					var x = response.responseText,
+						call = x.match(/([a-zA-Z_$][0-9a-zA-Z_$]*)\s*\(/),
+						s;
+					if (call && call.length === 2 && call[1] === callback) {
+						s = document.getElementById("gme_jsonp_node");
+						s.setAttribute("data-gme-callback", callback);
+						s.text = x.substring(x.indexOf("(") + 1, x.lastIndexOf(")"));
+						document.dispatchEvent(new Event("GME_XHR_callback"));
+					} else {
+						console.warn("Received: " + x);
+					}
 				}
-			}
-		};
-	if (gmeResources.env.xhr === 'GM4') {
-		GM.xmlHttpRequest(details);
-	} else {
-		setTimeout(function() { GM_xmlhttpRequest(details); }, 0);
+			};
+		if (gmeResources.env.xhr === 'GM4') {
+			GM.xmlHttpRequest(details);
+		} else {
+			setTimeout(function() { GM_xmlhttpRequest(details); }, 0);
+		}
 	}
-}
 
-//don't run on frames or iframes
-if (window.top !== window.self) { return; }
+	//don't run on frames or iframes
+	if (window.top !== window.self) { return; }
 
-if (!(typeof JSON === 'object' && typeof JSON.parse === 'function')) {
-	console.error("Geocaching Map Enhancements requires a browser with JSON support.");
-	return;
-}
-
-if (document.querySelector("head[data-gme-version]")) {
-	console.error("Aborting: GME already running on page: " + document.location);
-	return;
-}
-document.documentElement.firstChild.setAttribute("data-gme-version", gmeResources.parameters.version);
-
-for (i = 0; i < pageTests.length; i++) {
-	if (pageTests[i][1].test(document.location.pathname)) {
-		gmeResources.env.page = pageTests[i][0];
-		break;
+	if (!(typeof JSON === 'object' && typeof JSON.parse === 'function')) {
+		console.error("Geocaching Map Enhancements requires a browser with JSON support.");
+		return;
 	}
-}
 
-try {
-	if (window.localStorage !== undefined && window.localStorage !== null) { gmeResources.env.storage = true; }
-} catch (e) {
-	/*Potential security exception*/
-	console.warn("No localStorage capability - GME cannot set configuration");
-}
+	if (document.querySelector("head[data-gme-version]")) {
+		console.error("Aborting: GME already running on page: " + document.location);
+		return;
+	}
+	document.documentElement.firstChild.setAttribute("data-gme-version", gmeResources.parameters.version);
 
-if (gmeResources.env.storage) {
-	var a, b, customJSON, GME_custom, paramsJSON, storedParams;
-	/* List of defunct tileUrls to remove from settings */
-	var blacklist = [
-		"https://ecn.t{s}.tiles.virtualearth.net/tiles/r{q}?g=737&productSet=mmOS",
-		"https://ecn.t{s}.tiles.virtualearth.net/tiles/r{q}?g=864&productSet=mmCB",
-		"https://otile{s}-s.mqcdn.com/tiles/1.0.0/osm/{z}/{x}/{y}.jpg",
-		"https://otile{s}-s.mqcdn.com/tiles/1.0.0/sat/{z}/{x}/{y}.jpg"
-	];
+	for (i = 0; i < pageTests.length; i++) {
+		if (pageTests[i][1].test(document.location.pathname)) {
+			gmeResources.env.page = pageTests[i][0];
+			break;
+		}
+	}
 
 	try {
-		paramsJSON = localStorage.getItem("GME_parameters");
-		if (paramsJSON) {
-			try {
-				storedParams = JSON.parse(paramsJSON);
-				if (storedParams.version !== gmeResources.parameters.version) {
-					for (a in gmeResources.parameters) {
-						if (gmeResources.parameters.hasOwnProperty(a)) {
-							if (storedParams[a] === undefined) { storedParams[a] = gmeResources.parameters[a]; }
+		if (window.localStorage !== undefined && window.localStorage !== null) { gmeResources.env.storage = true; }
+	} catch (e) {
+		/*Potential security exception*/
+		console.warn("No localStorage capability - GME cannot set configuration");
+	}
+
+	if (gmeResources.env.storage) {
+		var a, b, customJSON, GME_custom, paramsJSON, storedParams;
+		/* List of defunct tileUrls to remove from settings */
+		var blacklist = [
+			"https://ecn.t{s}.tiles.virtualearth.net/tiles/r{q}?g=737&productSet=mmOS",
+			"https://ecn.t{s}.tiles.virtualearth.net/tiles/r{q}?g=864&productSet=mmCB",
+			"https://otile{s}-s.mqcdn.com/tiles/1.0.0/osm/{z}/{x}/{y}.jpg",
+			"https://otile{s}-s.mqcdn.com/tiles/1.0.0/sat/{z}/{x}/{y}.jpg"
+		];
+
+		try {
+			paramsJSON = localStorage.getItem("GME_parameters");
+			if (paramsJSON) {
+				try {
+					storedParams = JSON.parse(paramsJSON);
+					if (storedParams.version !== gmeResources.parameters.version) {
+						for (a in gmeResources.parameters) {
+							if (gmeResources.parameters.hasOwnProperty(a)) {
+								if (storedParams[a] === undefined) { storedParams[a] = gmeResources.parameters[a]; }
+							}
+						}
+						alert("Geocaching Map Enhancements has been updated to v" + gmeResources.parameters.version + ". " + gmeResources.parameters.versionMsg);
+						storedParams.version = gmeResources.parameters.version;
+						localStorage.setItem("GME_parameters", JSON.stringify(storedParams));
+					}
+					if (typeof storedParams.maps === "string") {
+						console.info("GME: Trying to fix corrupted map settings.");
+						storedParams.maps = JSON.parse(storedParams.maps);
+					}
+					gmeResources.parameters = storedParams;
+				} catch (e) {
+					console.warn("GME: Could not parse stored configuration parameters.");
+				}
+			}
+			/* Import old-style custom maps */
+			customJSON = localStorage.getItem("GME_custom");
+			if (customJSON) {
+				console.info("GME: Found stored custom settings");
+				try {
+					GME_custom = JSON.parse(customJSON);
+					if (GME_custom.maps && GME_custom.maps.length > 0) {
+						gmeResources.parameters.maps = gmeResources.parameters.maps.concat(GME_custom.maps);
+					}
+					delete localStorage.GME_custom;
+				} catch (e) {
+					console.warn("GME: Could not parse stored custom maps.");
+				}
+			}
+			/* Remove old-style builtin maps */
+			if (gmeResources.parameters.includeMaps) {
+				delete gmeResources.parameters.includeMaps;
+			}
+			if (gmeResources.parameters.excludeMaps) {
+				for (a = gmeResources.parameters.excludeMaps.length - 1; a >= 0; a--) {
+					for (b = gmeResources.parameters.maps.length - 1; b >= 0; b--) {
+						if (gmeResources.parameters.maps[b].alt === gmeResources.parameters.excludeMaps[a]) {
+							gmeResources.parameters.maps[b].ignore = true;
 						}
 					}
-					alert("Geocaching Map Enhancements has been updated to v" + gmeResources.parameters.version + ". " + gmeResources.parameters.versionMsg);
-					storedParams.version = gmeResources.parameters.version;
-					localStorage.setItem("GME_parameters", JSON.stringify(storedParams));
 				}
-				if (typeof storedParams.maps === "string") {
-					console.info("GME: Trying to fix corrupted map settings.");
-					storedParams.maps = JSON.parse(storedParams.maps);
-				}
-				gmeResources.parameters = storedParams;
-			} catch (e) {
-				console.warn("GME: Could not parse stored configuration parameters.");
+				delete gmeResources.parameters.excludeMaps;
 			}
-		}
-		/* Import old-style custom maps */
-		customJSON = localStorage.getItem("GME_custom");
-		if (customJSON) {
-			console.info("GME: Found stored custom settings");
-			try {
-				GME_custom = JSON.parse(customJSON);
-				if (GME_custom.maps && GME_custom.maps.length > 0) {
-					gmeResources.parameters.maps = gmeResources.parameters.maps.concat(GME_custom.maps);
-				}
-				delete localStorage.GME_custom;
-			} catch (e) {
-				console.warn("GME: Could not parse stored custom maps.");
-			}
-		}
-		/* Remove old-style builtin maps */
-		if (gmeResources.parameters.includeMaps) {
-			delete gmeResources.parameters.includeMaps;
-		}
-		if (gmeResources.parameters.excludeMaps) {
-			for (a = gmeResources.parameters.excludeMaps.length - 1; a >= 0; a--) {
-				for (b = gmeResources.parameters.maps.length - 1; b >= 0; b--) {
-					if (gmeResources.parameters.maps[b].alt === gmeResources.parameters.excludeMaps[a]) {
-						gmeResources.parameters.maps[b].ignore = true;
+
+			/* Remove broken map sources */
+			for (a = gmeResources.parameters.maps.length - 1; a >= 0; a--) {
+				for (b = 0; b < blacklist.length; b++) {
+					if (gmeResources.parameters.maps[a].tileUrl === blacklist[b]) {
+						gmeResources.parameters.maps.splice(a, 1);
 					}
 				}
 			}
-			delete gmeResources.parameters.excludeMaps;
-		}
 
-		/* Remove broken map sources */
-		for (a = gmeResources.parameters.maps.length - 1; a >= 0; a--) {
-			for (b = 0; b < blacklist.length; b++) {
-				if (gmeResources.parameters.maps[a].tileUrl === blacklist[b]) {
-					gmeResources.parameters.maps.splice(a, 1);
+			localStorage.setItem("GME_parameters", JSON.stringify(gmeResources.parameters));
+		} catch (e) {
+			console.error("GME: Bad Exception: " + e);
+			/* Potential security exception. Carry on with default parameters, but block localstorage */
+			gmeResources.env.storage = false;
+		}
+	}
+
+	document.addEventListener("GME_XHR_event", xhr);
+
+	if (!gmeResources.env.geolocation) {
+		gmeResources.script.dist = function() { console.warn("GME: Geolocation not available"); };
+	}
+	if (!gmeResources.env.dragdrop) {
+		gmeResources.script.drag = function() { console.warn("GME: Drag and Drop not available"); };
+		gmeResources.script.drop = gmeResources.script.drag;
+	}
+
+	insertCSS(gmeResources.css.main);
+	if (gmeResources.env.storage) {
+		insertPage('GME_config', gmeResources.html.config, 'Configure GME v' + gmeResources.parameters.version);
+		insertPage('GME_format', gmeResources.html.customInfo, 'Custom Mapsource Format', 'GME_config');
+	}
+
+	//	<bugfix>
+	// Trixie treats jQuery Mobile dialogs as new page loads, resetting GME's functions
+	if (window.GME !== undefined) { return; }
+	//	</bugfix>
+
+	switch (gmeResources.env.page) {
+		case "listing":
+			// On a geocache listing
+			if (!gmeResources.env.loggedin) {
+				// Not logged in, so no maps or coordinates...
+				console.log("GME: Couldn't detect log-in.  Exiting...");
+				return;
+			}
+			if (gmeResources.env.dragdrop) { insertCSS(gmeResources.css.drag); }
+			buildScript("GME_page_listing", "common", gmeResources.env.storage ? "config" : "", "map", "dist", "drag", "drop", "loadListing");
+			break;
+		case "seek":
+			// On the Hide & Seek page
+			target2 = document.querySelector(".SeekCacheWidget h4");
+			targets = document.getElementsByTagName("h5");
+			for (i = 0; i < targets.length; i++) {
+				if (targets[i].innerHTML.match(/WGS84/)) {
+					target = targets[i];
+					break;
 				}
 			}
-		}
 
-		localStorage.setItem("GME_parameters", JSON.stringify(gmeResources.parameters));
-	} catch (e) {
-		console.error("GME: Bad Exception: " + e);
-		/* Potential security exception. Carry on with default parameters, but block localstorage */
-		gmeResources.env.storage = false;
+			if (target && target2) {
+				var grDiv = document.createElement("div"), hereDiv = document.createElement("div");
+				grDiv.innerHTML = '<h5>Ordnance Survey Grid Reference :</h5><dl><dt>Grid reference : </dt><dd><form name="grForm" id="grForm"><input type="text" class="Text EqualWidthInput" maxlength="50" size="15" name="grRef" id="grRef" placeholder="SU122422">&nbsp;<input type="submit" class="Button blockWithModalSpinner" name="submitGR" value="Go" id="grSub"></form></dd></dl><h5>Freeform coordinates</h5><dl><dt>Coordinates :</dt><dd><form name="coordForm" id="coordForm"><input type="text" class="Text EqualWidthInput" maxlength="50" size="15" name="gme_coords" id="gme_coords" placeholder="N 51° 10.683′ W 001° 49.604′"/>&nbsp;<input type="submit" class="Button blockWithModalSpinner" name="gme_coords_sub" value="Go" id="gme_coords_sub"/></form></dd></dl>';
+				hereDiv.innerHTML = '<h4>Where you are...</h4><dl><dt>Use GeoLocation :</dt><dd><form name="hereForm" id="hereForm"><input type="submit" class="Button blockWithModalSpinner" name="GME_hereSub" value="Go" id="GME_hereSub"></form></dd></dl><h4>By keyword...</h4><dl><dt>Google search :</dt><dd><form name="googleForm" id="googleForm"><input type="text" class="Text EqualWidthInput" maxlength="50" size="15" name="gme_google" id="gme_google"/><input type="submit" class="Button blockWithModalSpinner" name="GME_googleSub" value="Go" id="GME_googleSub"></form></dd></dl>';
+				target.parentNode.insertBefore(grDiv, target);
+				target2.parentNode.insertBefore(hereDiv, target2);
+
+				buildScript("GME_page_seek", "common", gmeResources.env.storage ? "config" : "", "osgb", "seek", "loadSeek");
+			}
+			break;
+		case "track":
+			// On a TB tracking map
+			if (!gmeResources.env.loggedin) {
+				// Not logged in, so no maps or coordinates...
+				return;
+			}
+			buildScript("GME_page_track", "common", gmeResources.env.storage ? "config" : "", "map", "widget", "loadTrack");
+			break;
+		case "maps":
+			// On a Geocaching Maps page
+			// TODO: Detect if the Google Maps API is being used instead of Leaflet, and quit gracefully
+			/*		if (document.querySelector("script[src*='//maps.googleapis.com/']")){
+						console.warn("Geocaching Map Enhancements requires Leaflet Maps to be enabled.");
+						return;
+				f	}
+			*/
+			// Check for click-thru cache data in URI
+			var pop = location.search.match(/pop=([A-Za-z0-9+\/=]+)[\?&]?/);
+			if (pop && pop.length === 2) {
+				try {
+					localStorage.setItem("GME_cache", pop[1]);
+					location.search = location.search.replace(/&pop=[A-Za-z0-9+\/=]+[\?&]?/, "");
+				} catch (e) {
+					console.error(e + "GME couldn't decode click-through data: " + pop[1]);
+				}
+				return;
+			}
+
+			if (gmeResources.parameters.osgbSearch) {
+				targets = document.getElementsByClassName("SearchBox");
+				if (targets[0]) {
+					targets[0].innerHTML = gmeResources.html.search;
+				}
+			}
+
+			buildScript("GME_page_map", "common", gmeResources.env.storage ? "config" : "", "cssTransitionsFix", "map", "widget", "labels", "drop", gmeResources.parameters.osgbSearch ? "osgb" : "", "loadMap");
+			break;
+		case "type":
+			buildScript("GME_page_type", "common", gmeResources.env.storage ? "config" : "", "map", "widget", "drop", "loadType");
+			break;
+		case "hide":
+			buildScript("GME_page_hide", "common", gmeResources.env.storage ? "config" : "", "map", "widget", "drop", "loadHide");
+			break;
+		default:
+			// Somewhere random on the main website
+			if (gmeResources.env.storage) {
+				buildScript("Generic config", "common", "config", "loadDefault");
+			}
 	}
-}
-
-document.addEventListener("GME_XHR_event", xhr);
-
-if (!gmeResources.env.geolocation) {
-	gmeResources.script.dist = function() { console.warn("GME: Geolocation not available"); };
-}
-if (!gmeResources.env.dragdrop) {
-	gmeResources.script.drag = function() { console.warn("GME: Drag and Drop not available"); };
-	gmeResources.script.drop = gmeResources.script.drag;
-}
-
-insertCSS(gmeResources.css.main);
-if (gmeResources.env.storage) {
-	insertPage('GME_config', gmeResources.html.config, 'Configure GME v' + gmeResources.parameters.version);
-	insertPage('GME_format', gmeResources.html.customInfo, 'Custom Mapsource Format', 'GME_config');
-}
-
-//	<bugfix>
-// Trixie treats jQuery Mobile dialogs as new page loads, resetting GME's functions
-if (window.GME !== undefined) { return; }
-//	</bugfix>
-
-switch (gmeResources.env.page) {
-	case "listing":
-		// On a geocache listing
-		if (!gmeResources.env.loggedin) {
-			// Not logged in, so no maps or coordinates...
-			console.log("GME: Couldn't detect log-in.  Exiting...");
-			return;
-		}
-		if (gmeResources.env.dragdrop) { insertCSS(gmeResources.css.drag); }
-		buildScript("GME_page_listing", "common", gmeResources.env.storage ? "config" : "", "map", "dist", "drag", "drop", "loadListing");
-		break;
-	case "seek":
-		// On the Hide & Seek page
-		target2 = document.querySelector(".SeekCacheWidget h4");
-		targets = document.getElementsByTagName("h5");
-		for (i = 0; i < targets.length; i++) {
-			if (targets[i].innerHTML.match(/WGS84/)) {
-				target = targets[i];
-				break;
-			}
-		}
-
-		if (target && target2) {
-			var grDiv = document.createElement("div"), hereDiv = document.createElement("div");
-			grDiv.innerHTML = '<h5>Ordnance Survey Grid Reference :</h5><dl><dt>Grid reference : </dt><dd><form name="grForm" id="grForm"><input type="text" class="Text EqualWidthInput" maxlength="50" size="15" name="grRef" id="grRef" placeholder="SU122422">&nbsp;<input type="submit" class="Button blockWithModalSpinner" name="submitGR" value="Go" id="grSub"></form></dd></dl><h5>Freeform coordinates</h5><dl><dt>Coordinates :</dt><dd><form name="coordForm" id="coordForm"><input type="text" class="Text EqualWidthInput" maxlength="50" size="15" name="gme_coords" id="gme_coords" placeholder="N 51° 10.683′ W 001° 49.604′"/>&nbsp;<input type="submit" class="Button blockWithModalSpinner" name="gme_coords_sub" value="Go" id="gme_coords_sub"/></form></dd></dl>';
-			hereDiv.innerHTML = '<h4>Where you are...</h4><dl><dt>Use GeoLocation :</dt><dd><form name="hereForm" id="hereForm"><input type="submit" class="Button blockWithModalSpinner" name="GME_hereSub" value="Go" id="GME_hereSub"></form></dd></dl><h4>By keyword...</h4><dl><dt>Google search :</dt><dd><form name="googleForm" id="googleForm"><input type="text" class="Text EqualWidthInput" maxlength="50" size="15" name="gme_google" id="gme_google"/><input type="submit" class="Button blockWithModalSpinner" name="GME_googleSub" value="Go" id="GME_googleSub"></form></dd></dl>';
-			target.parentNode.insertBefore(grDiv, target);
-			target2.parentNode.insertBefore(hereDiv, target2);
-
-			buildScript("GME_page_seek", "common", gmeResources.env.storage ? "config" : "", "osgb", "seek", "loadSeek");
-		}
-		break;
-	case "track":
-		// On a TB tracking map
-		if (!gmeResources.env.loggedin) {
-			// Not logged in, so no maps or coordinates...
-			return;
-		}
-		buildScript("GME_page_track", "common", gmeResources.env.storage ? "config" : "", "map", "widget", "loadTrack");
-		break;
-	case "maps":
-		// On a Geocaching Maps page
-		// TODO: Detect if the Google Maps API is being used instead of Leaflet, and quit gracefully
-		/*		if (document.querySelector("script[src*='//maps.googleapis.com/']")){
-					console.warn("Geocaching Map Enhancements requires Leaflet Maps to be enabled.");
-					return;
-			f	}
-		*/
-		// Check for click-thru cache data in URI
-		var pop = location.search.match(/pop=([A-Za-z0-9+\/=]+)[\?&]?/);
-		if (pop && pop.length === 2) {
-			try {
-				localStorage.setItem("GME_cache", pop[1]);
-				location.search = location.search.replace(/&pop=[A-Za-z0-9+\/=]+[\?&]?/, "");
-			} catch (e) {
-				console.error(e + "GME couldn't decode click-through data: " + pop[1]);
-			}
-			return;
-		}
-
-		if (gmeResources.parameters.osgbSearch) {
-			targets = document.getElementsByClassName("SearchBox");
-			if (targets[0]) {
-				targets[0].innerHTML = gmeResources.html.search;
-			}
-		}
-
-		buildScript("GME_page_map", "common", gmeResources.env.storage ? "config" : "", "cssTransitionsFix", "map", "widget", "labels", "drop", gmeResources.parameters.osgbSearch ? "osgb" : "", "loadMap");
-		break;
-	case "type":
-		buildScript("GME_page_type", "common", gmeResources.env.storage ? "config" : "", "map", "widget", "drop", "loadType");
-		break;
-	case "hide":
-		buildScript("GME_page_hide", "common", gmeResources.env.storage ? "config" : "", "map", "widget", "drop", "loadHide");
-		break;
-	default:
-		// Somewhere random on the main website
-		if (gmeResources.env.storage) {
-			buildScript("Generic config", "common", "config", "loadDefault");
-		}
-}
 }());
