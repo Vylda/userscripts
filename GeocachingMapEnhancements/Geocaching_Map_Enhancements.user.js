@@ -46,10 +46,8 @@
 			defaultHillShading: "Hillshading",
 			maps: [
 				//	{alt:"Readable Name", tileUrl: "URL template including {s} (subdomain) and either {q} (quadkey) or {x},{y},{z} (Google/TMS tile coordinates + zoom)", subdomains: "0123", minZoom: 0, maxZoom: 24, attribution: "Copyright message (HTML allowed)", name: "shortname", overlay:false }
-				{ alt: "Mapy.cz - Turistická", tileUrl: "http://m{s}.mapserver.mapy.cz/turist-m/{z}-{x}-{y}", minZoom: 5, maxZoom: 18, subdomains: "1234", attribution: "© <a href='//www.seznam.cz' target='_blank'>Seznam.cz, a.s.</a>, © <a href='http://www.openstreetmap.org/copyright'>OpenStreetMap</a>, © NASA" },
-				{ alt: "Turistické Mapy.cz", tileUrl: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", name: "osm", subdomains: "abc" },
 				{ alt: "OpenStreetMap", tileUrl: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", name: "osm", subdomains: "abc" },
-				{ alt: "OpenCycleMap", tileUrl: "https://tile.thunderforest.com/cycle/{z}/{x}/{y}.png", name: "ocm" },
+				{ alt: "OpenCycleMap", tileUrl: "https://tile.thunderforest.com/cycle/{z}/{x}/{y}.png", name: "ocm", apiKey: 'OpenCycleMap', apiKeyQuery: "apikey={apikey}" },
 				{ alt: "Bing Maps", tileUrl: "https://ecn.t{s}.tiles.virtualearth.net/tiles/r{q}?g=864&mkt=en-gb&lbl=l1&stl=h&shading=hill&n=z", subdomains: "0123", minZoom: 1, maxZoom: 20, attribution: "<a href=\'https://www.bing.com/maps/\'>Bing</a> map data copyright Microsoft and its suppliers", name: "bingmap", ignore: true },
 				{ alt: "Bing Aerial View", tileUrl: "https://ecn.t{s}.tiles.virtualearth.net/tiles/a{q}?g=737&n=z", subdomains: "0123", minZoom: 1, maxZoom: 20, attribution: "<a href=\'https://www.bing.com/maps/\'>Bing</a> map data copyright Microsoft and its suppliers", name: "bingaerial" },
 				{ alt: "Google Maps", tileUrl: "https://mt.google.com/vt?&x={x}&y={y}&z={z}", name: "googlemaps", attribution: "<a href=\'https://maps.google.com/\'>Google</a> Maps", subdomains: "1234", tileSize: 256, maxZoom: 22 },
@@ -57,8 +55,10 @@
 				{ alt: "Freemap Slovakia Hiking", tileUrl: "http://t{s}.freemap.sk/T/{z}/{x}/{y}.jpeg", attribution: "Map &copy; <a href='http://www.freemap.sk/'>Freemap Slovakia</a>, data &copy; <a href='http://openstreetmap.org'>OpenStreetMap</a> contributors", subdomains: "1234", minZoom: 8, maxZoom: 16, ignore: true },
 				{ alt: "Freemap Slovakia Bicycle", tileUrl: "http://t{s}.freemap.sk/C/{z}/{x}/{y}.jpeg", attribution: "Map &copy; <a href='http://www.freemap.sk/'>Freemap Slovakia</a>, data &copy; <a href='http://openstreetmap.org'>OpenStreetMap</a> contributors", subdomains: "1234", minZoom: 8, maxZoom: 16, ignore: true },
 				{ alt: "Freemap Slovakia Car", tileUrl: "http://t{s}.freemap.sk/A/{z}/{x}/{y}.jpeg", attribution: "Map &copy; <a href='http://www.freemap.sk/'>Freemap Slovakia</a>, data &copy; <a href='http://openstreetmap.org'>OpenStreetMap</a> contributors", subdomains: "1234", minZoom: 8, maxZoom: 16, ignore: true },
+				{ alt: "Mapy.cz - Turistická", tileUrl: "https://m{s}.mapserver.mapy.cz/turist-m/{z}-{x}-{y}", minZoom: 5, maxZoom: 18, subdomains: "1234", attribution: "© <a href='//www.seznam.cz' target='_blank'>Seznam.cz, a.s.</a>, © <a href='http://www.openstreetmap.org/copyright'>OpenStreetMap</a>, © NASA" },
 				{ alt: "Hillshading", tileUrl: "http://{s}.tiles.wmflabs.org/hillshading/{z}/{x}/{y}.png", subdomains: "abc", attribution: "Hillshading by <a	 href=\'https://wiki.openstreetmap.org/wiki/Hike_%26_Bike_Map\'>Colin Marquardt</a> from NASA SRTM data", overlay: true }
-			]
+			],
+			apiKeys: {},
 		},
 		css: {
 			main: '.leaflet-control-gme,.leaflet-control-zoomwarning {border-radius:7px; filter: progid:DXImageTransform.Microsoft.gradient(startColorStr="#3F000000",EndColorStr="#3F000000"); padding:5px;z-index:8;}\
@@ -125,7 +125,9 @@
 			.gme-fieldgroup li { display: inline-block; margin: 0 -1px -1px 0; background: #ddd; border: 1px solid #ccc; border-radius: 6px; padding: 0 0.5em; }\
 			.gme-xhair { cursor: crosshair; }\
 			.map-button-container { margin-right: 5em; }\
-			.leaflet-control-layers-toggle { background-size: 75%; background-image: url(\'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 26 26"%3E%3Cdefs%3E%3Cstyle%3E.diamond%7Bopacity:0.8;fill:url(%23radialGradient);%7D.diamnondPath%7Bfill:url(%23linearGradient);%7D%3C/style%3E%3CradialGradient id="radialGradient" cx="170.89" cy="960.99" r="10.16" gradientTransform="translate(-161.12 -1073.84) scale(1.02 1.13)" gradientUnits="userSpaceOnUse"%3E%3Cstop offset="0.16" stop-color="gray"/%3E%3Cstop offset="1" stop-color="%23fff"/%3E%3C/radialGradient%3E%3ClinearGradient id="linearGradient" x1="13" x2="13" y2="15" gradientUnits="userSpaceOnUse"%3E%3Cstop offset="0" stop-color="%23b3b3b3"/%3E%3Cstop offset="1" stop-color="%234d4d4d"/%3E%3C/linearGradient%3E%3Csymbol id="layer" data-name="Nový symbol…" viewBox="0 0 26 15"%3E%3Cpolygon class="diamond" points="13.52 0 0 6.92 13.52 15 26 6.92 13.52 0"/%3E%3Cpath class="diamnondPath" d="M13.5,1.13,24.06,7,13.5,13.82,2.06,7,13.5,1.13m0-1.13L0,6.92,13.52,15,26,6.92,13.52,0Z"/%3E%3C/symbol%3E%3C/defs%3E%3Cuse width="26" height="15" transform="translate(0 11)" xlink:href="%23layer"/%3E%3Cuse width="26" height="15" transform="translate(0 5.57) scale(1 0.98)" xlink:href="%23layer"/%3E%3Cuse width="26" height="15" transform="translate(0) scale(1 0.98)" xlink:href="%23layer"/%3E%3C/svg%3E\'); }',
+			.leaflet-control-layers-toggle { background-size: 75%; background-image: url(\'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 26 26"%3E%3Cdefs%3E%3Cstyle%3E.diamond%7Bopacity:0.8;fill:url(%23radialGradient);%7D.diamnondPath%7Bfill:url(%23linearGradient);%7D%3C/style%3E%3CradialGradient id="radialGradient" cx="170.89" cy="960.99" r="10.16" gradientTransform="translate(-161.12 -1073.84) scale(1.02 1.13)" gradientUnits="userSpaceOnUse"%3E%3Cstop offset="0.16" stop-color="gray"/%3E%3Cstop offset="1" stop-color="%23fff"/%3E%3C/radialGradient%3E%3ClinearGradient id="linearGradient" x1="13" x2="13" y2="15" gradientUnits="userSpaceOnUse"%3E%3Cstop offset="0" stop-color="%23b3b3b3"/%3E%3Cstop offset="1" stop-color="%234d4d4d"/%3E%3C/linearGradient%3E%3Csymbol id="layer" data-name="Nový symbol…" viewBox="0 0 26 15"%3E%3Cpolygon class="diamond" points="13.52 0 0 6.92 13.52 15 26 6.92 13.52 0"/%3E%3Cpath class="diamnondPath" d="M13.5,1.13,24.06,7,13.5,13.82,2.06,7,13.5,1.13m0-1.13L0,6.92,13.52,15,26,6.92,13.52,0Z"/%3E%3C/symbol%3E%3C/defs%3E%3Cuse width="26" height="15" transform="translate(0 11)" xlink:href="%23layer"/%3E%3Cuse width="26" height="15" transform="translate(0 5.57) scale(1 0.98)" xlink:href="%23layer"/%3E%3Cuse width="26" height="15" transform="translate(0) scale(1 0.98)" xlink:href="%23layer"/%3E%3C/svg%3E\'); }\
+			#GME_apikeys_field label { display: block; }\
+			#GME_apikeys_field label input { width: 75%; }',
 			drag: '#cacheDetails .cacheImage { border: solid 1px #ccc; border-radius: 7px; padding-left: 5px; }\
 			.moveable { cursor: move; box-shadow: 0 1px 4px rgba(102, 51, 255, 0.3); }'
 		},
@@ -148,6 +150,10 @@
 						<ul id="GME_mapfields"></ul>\
 						<label>Default map source: &nbsp;<select name="GME_map_default" id="GME_map_default"></select></label>\
 						<label>Default hill shading source: &nbsp;<select name="GME_hill_shade_default" id="GME_hill_shade_default"></select></label>\
+					</div>\
+					<div class="gme-fieldgroup">\
+						<h3>Map API key</h3>\
+						<div id="GME_apikeys_field"></dov>\
 					</div>\
 				</div>\
 			</section>\
@@ -695,7 +701,16 @@
 					return false;
 				}
 				function setConfig() {
-					var i, mapfields = "", shadingSelect = "<option value=''>none</option>", mapfields_del = "", mapselect = "", alt = "", overlay, sel, overSel, allMaps = that.parameters.maps;
+					var i,
+						mapfields = "",
+						shadingSelect = "<option value=''>none</option>",
+						mapfields_del = "",
+						mapselect = "",
+						alt = "",
+						overlay, sel, overSel,
+						allMaps = that.parameters.maps,
+						allApiKeys = that.parameters.apiKeys;
+
 					for (i = 0; i < allMaps.length; i++) {
 						alt = allMaps[i].alt;
 						overlay = allMaps[i].overlay;
@@ -703,6 +718,21 @@
 						else { shadingSelect += "<option value='" + htmlEntities(alt) + "'>" + htmlEntities(alt) + "</option>"; }
 						mapfields += "<li><label><input type='checkbox' " + (allMaps[i].ignore ? "" : "checked='checked' ") + "name='" + htmlEntities(alt) + "' id='checkbox-" + i + "' /> " + htmlEntities(alt) + (overlay ? " (Overlay)" : "") + "</label></li>";
 					}
+
+					// API keys
+					const mapsWithApiKey = allMaps.filter((map) => map.apiKey);
+					mapsWithApiKey.forEach((map) => {
+						const existingApiKey = allApiKeys && allApiKeys[map.apiKey] ? allApiKeys[map.apiKey] : "";
+						const label = document.createElement("label");
+						label.innerHTML = `${map.apiKey}&nbsp;`;
+						const input = document.createElement("input");
+						input.type = "text";
+						input.name = map.apiKey;
+						input.value = existingApiKey;
+						label.appendChild(input);
+						$("#GME_apikeys_field").append(label);
+					});
+
 					if (allMaps.length > 0) {
 						for (i = 0; i < allMaps.length; i++) {
 							alt = allMaps[i].alt;
@@ -736,7 +766,7 @@
 					$("#GME_version").html(that.parameters.version);
 				}
 				function storeSettings() {
-					var i, j, list;
+					var i, j, list, apiKeys;
 					that.parameters.defaultMap = $("#GME_map_default")[0].value;
 					that.parameters.defaultHillShade = $("#GME_hill_shade_default")[0].value;
 					list = $("#GME_mapfields input");
@@ -763,6 +793,20 @@
 							}
 						}
 					}
+
+					if (!that.parameters.apiKeys) {
+						that.parameters.apiKeys = {};
+					}
+					apiKeys = $("#GME_apikeys_field label input");
+					for (var ak = 0; ak < apiKeys.length; ak++) {
+						const field = apiKeys[ak];
+						if (field.value) {
+							that.parameters.apiKeys[field.name] = field.value;
+						} else if (that.parameters.apiKeys[field.name]) {
+							delete that.parameters.apiKeys[field.name];
+						}
+					}
+
 					that.parameters.brightness = $("#GME_brightness").val() / 100;
 					that.parameters.filterFinds = $("#GME_filterFinds")[0].checked ? true : false;
 					that.parameters.follow = $("#GME_follow")[0].checked ? true : false;
@@ -1718,11 +1762,25 @@
 				}
 
 				function GME_get_layerControl(map) {
-					var maps = {}, overlays = {}, allMaps = that.parameters.maps, baseMaps, control, i, layer, src;
+					var maps = {}, overlays = {}, allMaps = that.parameters.maps, apiKeys = that.parameters.apiKeys,
+						baseMaps, control, i, layer, src;
 					for (baseMaps = 0, i = 0; i < allMaps.length; i++) {
 						src = allMaps[i];
 						if (!src.ignore) {
-							layer = L.GME_genericLayer(src.tileUrl, src);
+							let tileUrl = src.tileUrl;
+
+							if (apiKeys && src.apiKey && src.apiKeyQuery) {
+								const apiKey = apiKeys[src.apiKey];
+								if (apiKey) {
+									var replacedTemplate = src.apiKeyQuery.replace(/\{apikey\}/, apiKey);
+									const url = new URL(tileUrl);
+									const search = url.search;
+									url.search = search ? `${search}&${replacedTemplate}` : `?${replacedTemplate}`;
+									tileUrl = decodeURI(url.href);
+								}
+							}
+
+							layer = L.GME_genericLayer(tileUrl, src);
 							if (layer) {
 								if (src.overlay) {
 									overlays[src.alt] = layer;
