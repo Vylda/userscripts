@@ -22,7 +22,7 @@
 // @icon        https://geo.inge.org.uk/userscripts/GeocachingMap48.png
 // @icon64      https://geo.inge.org.uk/userscripts/GeocachingMap64.png
 // @updateURL   https://geo.inge.org.uk/userscripts/GeocachingMapEnhancements.meta.js
-// @downloadURL https://openuserjs.org/install/Vylda/Geocaching_Map_Enhancements.user.js
+// @downloadURL https://openuserjs.org/install/JRI/Geocaching_Map_Enhancements.user.js
 // ==/UserScript==
 
 /* jshint multistr: true */
@@ -46,6 +46,8 @@
 			defaultHillShading: "Hillshading",
 			maps: [
 				//	{alt:"Readable Name", tileUrl: "URL template including {s} (subdomain) and either {q} (quadkey) or {x},{y},{z} (Google/TMS tile coordinates + zoom)", subdomains: "0123", minZoom: 0, maxZoom: 24, attribution: "Copyright message (HTML allowed)", name: "shortname", overlay:false }
+				{ alt: "Mapy.cz - Turistická", tileUrl: "http://m{s}.mapserver.mapy.cz/turist-m/{z}-{x}-{y}", minZoom: 5, maxZoom: 18, subdomains: "1234", attribution: "© <a href='//www.seznam.cz' target='_blank'>Seznam.cz, a.s.</a>, © <a href='http://www.openstreetmap.org/copyright'>OpenStreetMap</a>, © NASA" },
+				{ alt: "Turistické Mapy.cz", tileUrl: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", name: "osm", subdomains: "abc" },
 				{ alt: "OpenStreetMap", tileUrl: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", name: "osm", subdomains: "abc" },
 				{ alt: "OpenCycleMap", tileUrl: "https://tile.thunderforest.com/cycle/{z}/{x}/{y}.png", name: "ocm" },
 				{ alt: "Bing Maps", tileUrl: "https://ecn.t{s}.tiles.virtualearth.net/tiles/r{q}?g=864&mkt=en-gb&lbl=l1&stl=h&shading=hill&n=z", subdomains: "0123", minZoom: 1, maxZoom: 20, attribution: "<a href=\'https://www.bing.com/maps/\'>Bing</a> map data copyright Microsoft and its suppliers", name: "bingmap", ignore: true },
