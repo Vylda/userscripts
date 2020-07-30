@@ -1,6 +1,10 @@
 // ==UserScript==
 // @name        Geocaching Map Enhancements
+<<<<<<< HEAD
+// @version     0.8.3
+=======
 // @version     0.9.0
+>>>>>>> origin/master_Vylda
 // @author      JRI
 // @oujs:author JRI
 // @namespace   inge.org.uk/userscripts
@@ -28,14 +32,22 @@
 /* jshint multistr: true */
 /* global $, amplify, DMM, FileReader, GM, GM_xmlhttpRequest, Groundspeak, L, LatLon, mapLatLng, MapSettings */
 
+<<<<<<< HEAD
+(function() {
+=======
 (function () {
+>>>>>>> origin/master_Vylda
 	"use strict";
 
 	var gmeResources = {
 		parameters: {
 			// Defaults
 			version: "0.8.2",
+<<<<<<< HEAD
+			versionMsg: "Icons fix",
+=======
 			versionMsg: "Bugfix update: improves display of lists and PQs on geocaching map.",
+>>>>>>> origin/master_Vylda
 			brightness: 1,	// Default brightness for maps (0-1), can be overridden by custom map parameters.
 			filterFinds: false, // True filters finds out of list searches.
 			follow: false,	// Locator widget follows current location (moving map mode)
@@ -43,10 +55,18 @@
 			measure: "metric",	// Or "imperial" - used for the scale indicators
 			osgbSearch: true,	// Enhance search box with OSGB grid references, zooming, etc. (may interfere with postal code searches)
 			defaultMap: "OpenStreetMap",
+<<<<<<< HEAD
+			defaultHillShading: "Hillshading",
+			maps: [
+				//	{alt:"Readable Name", tileUrl: "URL template including {s} (subdomain) and either {q} (quadkey) or {x},{y},{z} (Google/TMS tile coordinates + zoom)", subdomains: "0123", minZoom: 0, maxZoom: 24, attribution: "Copyright message (HTML allowed)", name: "shortname", overlay:false }
+				{ alt: "OpenStreetMap", tileUrl: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", name: "osm", subdomains: "abc" },
+				{ alt: "OpenCycleMap", tileUrl: "https://tile.thunderforest.com/cycle/{z}/{x}/{y}.png", name: "ocm", apiKey: 'OpenCycleMap', apiKeyQuery: "apikey={apikey}" },
+=======
 			maps: [
 				//	{alt:"Readable Name", tileUrl: "URL template including {s} (subdomain) and either {q} (quadkey) or {x},{y},{z} (Google/TMS tile coordinates + zoom)", subdomains: "0123", minZoom: 0, maxZoom: 24, attribution: "Copyright message (HTML allowed)", name: "shortname", overlay:false }
 				{ alt: "OpenStreetMap", tileUrl: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", name: "osm", subdomains: "abc" },
 				{ alt: "OpenCycleMap", tileUrl: "https://tile.thunderforest.com/cycle/{z}/{x}/{y}.png", name: "ocm" },
+>>>>>>> origin/master_Vylda
 				{ alt: "Bing Maps", tileUrl: "https://ecn.t{s}.tiles.virtualearth.net/tiles/r{q}?g=864&mkt=en-gb&lbl=l1&stl=h&shading=hill&n=z", subdomains: "0123", minZoom: 1, maxZoom: 20, attribution: "<a href=\'https://www.bing.com/maps/\'>Bing</a> map data copyright Microsoft and its suppliers", name: "bingmap", ignore: true },
 				{ alt: "Bing Aerial View", tileUrl: "https://ecn.t{s}.tiles.virtualearth.net/tiles/a{q}?g=737&n=z", subdomains: "0123", minZoom: 1, maxZoom: 20, attribution: "<a href=\'https://www.bing.com/maps/\'>Bing</a> map data copyright Microsoft and its suppliers", name: "bingaerial" },
 				{ alt: "Google Maps", tileUrl: "https://mt.google.com/vt?&x={x}&y={y}&z={z}", name: "googlemaps", attribution: "<a href=\'https://maps.google.com/\'>Google</a> Maps", subdomains: "1234", tileSize: 256, maxZoom: 22 },
@@ -54,8 +74,15 @@
 				{ alt: "Freemap Slovakia Hiking", tileUrl: "http://t{s}.freemap.sk/T/{z}/{x}/{y}.jpeg", attribution: "Map &copy; <a href='http://www.freemap.sk/'>Freemap Slovakia</a>, data &copy; <a href='http://openstreetmap.org'>OpenStreetMap</a> contributors", subdomains: "1234", minZoom: 8, maxZoom: 16, ignore: true },
 				{ alt: "Freemap Slovakia Bicycle", tileUrl: "http://t{s}.freemap.sk/C/{z}/{x}/{y}.jpeg", attribution: "Map &copy; <a href='http://www.freemap.sk/'>Freemap Slovakia</a>, data &copy; <a href='http://openstreetmap.org'>OpenStreetMap</a> contributors", subdomains: "1234", minZoom: 8, maxZoom: 16, ignore: true },
 				{ alt: "Freemap Slovakia Car", tileUrl: "http://t{s}.freemap.sk/A/{z}/{x}/{y}.jpeg", attribution: "Map &copy; <a href='http://www.freemap.sk/'>Freemap Slovakia</a>, data &copy; <a href='http://openstreetmap.org'>OpenStreetMap</a> contributors", subdomains: "1234", minZoom: 8, maxZoom: 16, ignore: true },
+<<<<<<< HEAD
+				{ alt: "Mapy.cz - Turistická", tileUrl: "https://m{s}.mapserver.mapy.cz/turist-m/{z}-{x}-{y}", minZoom: 5, maxZoom: 18, subdomains: "1234", attribution: "© <a href='//www.seznam.cz' target='_blank'>Seznam.cz, a.s.</a>, © <a href='http://www.openstreetmap.org/copyright'>OpenStreetMap</a>, © NASA" },
+				{ alt: "Hillshading", tileUrl: "http://{s}.tiles.wmflabs.org/hillshading/{z}/{x}/{y}.png", subdomains: "abc", attribution: "Hillshading by <a	 href=\'https://wiki.openstreetmap.org/wiki/Hike_%26_Bike_Map\'>Colin Marquardt</a> from NASA SRTM data", overlay: true }
+			],
+			apiKeys: {},
+=======
 				{ alt: "Hillshading", tileUrl: "http://{s}.tiles.wmflabs.org/hillshading/{z}/{x}/{y}.png", subdomains: "abc", attribution: "Hillshading by <a	 href=\'https://wiki.openstreetmap.org/wiki/Hike_%26_Bike_Map\'>Colin Marquardt</a> from NASA SRTM data", overlay: true }
 			]
+>>>>>>> origin/master_Vylda
 		},
 		css: {
 			main: '.leaflet-control-gme,.leaflet-control-zoomwarning {border-radius:7px; filter: progid:DXImageTransform.Microsoft.gradient(startColorStr="#3F000000",EndColorStr="#3F000000"); padding:5px;z-index:8;}\
@@ -76,18 +103,17 @@
 			.gme-button-active {border:solid 3px #02b; padding:1px 0 1px 1px; background-color:#fff;}\
 			.gme-button-active:hover {border-color:#63f;filter:alpha(opacity=100);}\
 			span.gme-button, .gme-button-wide { padding-left:5px; padding-right:5px; font-size:12px; font-weight:bold; width:auto; background-image:none; color: #424242; }\
-			.GME_home { background-size: 18px 18px; background-position: center;background-image: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHg9IjBweCIgeT0iMHB4IgogICAgIHdpZHRoPSI1MCIgaGVpZ2h0PSI1MCIKICAgICB2aWV3Qm94PSIwIDAgMzAgMzAiCiAgICAgc3R5bGU9ImZpbGw6IzAwMDAwMDsiPiAgICA8cGF0aCBkPSJNIDE1IDIgQSAxIDEgMCAwIDAgMTQuMzAwNzgxIDIuMjg1MTU2MiBMIDMuMzkyNTc4MSAxMS4yMDcwMzEgQSAxIDEgMCAwIDAgMy4zNTU0Njg4IDExLjIzNjMyOCBMIDMuMzE4MzU5NCAxMS4yNjc1NzggTCAzLjMxODM1OTQgMTEuMjY5NTMxIEEgMSAxIDAgMCAwIDMgMTIgQSAxIDEgMCAwIDAgNCAxMyBMIDUgMTMgTCA1IDI0IEMgNSAyNS4xMDUgNS44OTUgMjYgNyAyNiBMIDIzIDI2IEMgMjQuMTA1IDI2IDI1IDI1LjEwNSAyNSAyNCBMIDI1IDEzIEwgMjYgMTMgQSAxIDEgMCAwIDAgMjcgMTIgQSAxIDEgMCAwIDAgMjYuNjgxNjQxIDExLjI2NzU3OCBMIDI2LjY2NjAxNiAxMS4yNTU4NTkgQSAxIDEgMCAwIDAgMjYuNTk3NjU2IDExLjE5OTIxOSBMIDI1IDkuODkyNTc4MSBMIDI1IDYgQyAyNSA1LjQ0OCAyNC41NTIgNSAyNCA1IEwgMjMgNSBDIDIyLjQ0OCA1IDIyIDUuNDQ4IDIyIDYgTCAyMiA3LjQzOTQ1MzEgTCAxNS42Nzc3MzQgMi4yNjc1NzgxIEEgMSAxIDAgMCAwIDE1IDIgeiBNIDE4IDE1IEwgMjIgMTUgTCAyMiAyMyBMIDE4IDIzIEwgMTggMTUgeiI+PC9wYXRoPjwvc3ZnPg==")}\
-			.GME_config { background-size: 18px 18px; background-position: center;background-image: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHg9IjBweCIgeT0iMHB4IgogICAgIHdpZHRoPSI1MCIgaGVpZ2h0PSI1MCIKICAgICB2aWV3Qm94PSIwIDAgMzIgMzIiCiAgICAgc3R5bGU9ImZpbGw6IzAwMDAwMDsiPjxnIGlkPSJzdXJmYWNlMSI+PHBhdGggc3R5bGU9IiAiIGQ9Ik0gMjEuNSAyLjUgTCAyMS41IDMuOTA2MjUgQyAyMC42NjQwNjMgNC4wNTQ2ODggMTkuODg2NzE5IDQuMzcxMDk0IDE5LjIxODc1IDQuODQzNzUgTCAxOC4xODc1IDMuODc1IEwgMTYuODEyNSA1LjM0Mzc1IEwgMTcuODEyNSA2LjI4MTI1IEMgMTcuMzYzMjgxIDYuOTM3NSAxNy4wNTA3ODEgNy42ODc1IDE2LjkwNjI1IDguNSBMIDE1LjUgOC41IEwgMTUuNSAxMC41IEwgMTYuOTA2MjUgMTAuNSBDIDE3LjA1MDc4MSAxMS4zMjgxMjUgMTcuMzc4OTA2IDEyLjA4NTkzOCAxNy44NDM3NSAxMi43NSBMIDE2Ljc4MTI1IDEzLjc4MTI1IEwgMTguMjE4NzUgMTUuMjE4NzUgTCAxOS4yNSAxNC4xNTYyNSBDIDE5LjkxNDA2MyAxNC42MjEwOTQgMjAuNjcxODc1IDE0Ljk0OTIxOSAyMS41IDE1LjA5Mzc1IEwgMjEuNSAxNi41IEwgMjMuNSAxNi41IEwgMjMuNSAxNS4wOTM3NSBDIDI0LjMxMjUgMTQuOTQ5MjE5IDI1LjA2MjUgMTQuNjM2NzE5IDI1LjcxODc1IDE0LjE4NzUgTCAyNi42NTYyNSAxNS4xODc1IEwgMjguMTI1IDEzLjgxMjUgTCAyNy4xNTYyNSAxMi43ODEyNSBDIDI3LjYyODkwNiAxMi4xMTMyODEgMjcuOTQ1MzEzIDExLjMzNTkzOCAyOC4wOTM3NSAxMC41IEwgMjkuNSAxMC41IEwgMjkuNSA4LjUgTCAyOC4wOTM3NSA4LjUgQyAyNy45NDkyMTkgNy42NzE4NzUgMjcuNjIxMDk0IDYuOTE0MDYzIDI3LjE1NjI1IDYuMjUgTCAyOC4wOTM3NSA1LjMxMjUgTCAyNi42ODc1IDMuOTA2MjUgTCAyNS43NSA0Ljg0Mzc1IEMgMjUuMDg1OTM4IDQuMzc4OTA2IDI0LjMyODEyNSA0LjA1MDc4MSAyMy41IDMuOTA2MjUgTCAyMy41IDIuNSBaIE0gMjIuNSA1LjgxMjUgQyAyNC41NTQ2ODggNS44MTI1IDI2LjE4NzUgNy40NDUzMTMgMjYuMTg3NSA5LjUgQyAyNi4xODc1IDExLjU1NDY4OCAyNC41NTQ2ODggMTMuMTg3NSAyMi41IDEzLjE4NzUgQyAyMC40NDUzMTMgMTMuMTg3NSAxOC44MTI1IDExLjU1NDY4OCAxOC44MTI1IDkuNSBDIDE4LjgxMjUgNy40NDUzMTMgMjAuNDQ1MzEzIDUuODEyNSAyMi41IDUuODEyNSBaIE0gOS41MzEyNSAxMS43MTg3NSBMIDcuNjg3NSAxMi40Njg3NSBMIDguNDA2MjUgMTQuMjgxMjUgQyA3LjQ1MzEyNSAxNC44NTE1NjMgNi42NDA2MjUgMTUuNjQ4NDM4IDYuMDYyNSAxNi41OTM3NSBMIDQuMjgxMjUgMTUuODc1IEwgMy41MzEyNSAxNy43MTg3NSBMIDUuMzEyNSAxOC40Mzc1IEMgNS4xNzk2ODggMTguOTY0ODQ0IDUuMDkzNzUgMTkuNTIzNDM4IDUuMDkzNzUgMjAuMDkzNzUgQyA1LjA5Mzc1IDIwLjY2NDA2MyA1LjE3OTY4OCAyMS4yMTg3NSA1LjMxMjUgMjEuNzUgTCAzLjUzMTI1IDIyLjQ2ODc1IEwgNC4yODEyNSAyNC4zMTI1IEwgNi4wNjI1IDIzLjU5Mzc1IEMgNi42NDA2MjUgMjQuNTU0Njg4IDcuNDQ1MzEzIDI1LjM1OTM3NSA4LjQwNjI1IDI1LjkzNzUgTCA3LjY4NzUgMjcuNzE4NzUgTCA5LjUzMTI1IDI4LjQ2ODc1IEwgMTAuMjUgMjYuNjg3NSBDIDEwLjc4MTI1IDI2LjgyMDMxMyAxMS4zMzIwMzEgMjYuOTA2MjUgMTEuOTA2MjUgMjYuOTA2MjUgQyAxMi40NzY1NjMgMjYuOTA2MjUgMTMuMDM1MTU2IDI2LjgyMDMxMyAxMy41NjI1IDI2LjY4NzUgTCAxNC4yODEyNSAyOC40Njg3NSBMIDE2LjEyNSAyNy43MTg3NSBMIDE1LjQwNjI1IDI1LjkzNzUgQyAxNi4zNTE1NjMgMjUuMzU5Mzc1IDE3LjE0ODQzOCAyNC41NDY4NzUgMTcuNzE4NzUgMjMuNTkzNzUgTCAxOS41MzEyNSAyNC4zMTI1IEwgMjAuMjgxMjUgMjIuNDY4NzUgTCAxOC40Njg3NSAyMS43NSBDIDE4LjYwMTU2MyAyMS4yMTg3NSAxOC42ODc1IDIwLjY2NDA2MyAxOC42ODc1IDIwLjA5Mzc1IEMgMTguNjg3NSAxOS41MjM0MzggMTguNjAxNTYzIDE4Ljk2NDg0NCAxOC40Njg3NSAxOC40Mzc1IEwgMjAuMjgxMjUgMTcuNzE4NzUgTCAxOS41MzEyNSAxNS44NzUgTCAxNy43MTg3NSAxNi41OTM3NSBDIDE3LjE0ODQzOCAxNS42NTIzNDQgMTYuMzUxNTYzIDE0Ljg1MTU2MyAxNS40MDYyNSAxNC4yODEyNSBMIDE2LjEyNSAxMi40Njg3NSBMIDE0LjI4MTI1IDExLjcxODc1IEwgMTMuNTYyNSAxMy41MzEyNSBDIDEzLjAzMTI1IDEzLjM5ODQzOCAxMi40NzY1NjMgMTMuMzEyNSAxMS45MDYyNSAxMy4zMTI1IEMgMTEuMzM1OTM4IDEzLjMxMjUgMTAuNzgxMjUgMTMuMzk4NDM4IDEwLjI1IDEzLjUzMTI1IFogTSAxMS45MDYyNSAxNS4zMTI1IEMgMTQuNTcwMzEzIDE1LjMxMjUgMTYuNjg3NSAxNy40Mjk2ODggMTYuNjg3NSAyMC4wOTM3NSBDIDE2LjY4NzUgMjIuNzU3ODEzIDE0LjU3MDMxMyAyNC45MDYyNSAxMS45MDYyNSAyNC45MDYyNSBDIDkuMjQyMTg4IDI0LjkwNjI1IDcuMDkzNzUgMjIuNzU3ODEzIDcuMDkzNzUgMjAuMDkzNzUgQyA3LjA5Mzc1IDE3LjQyOTY4OCA5LjI0MjE4OCAxNS4zMTI1IDExLjkwNjI1IDE1LjMxMjUgWiAiPjwvcGF0aD48L2c+PC9zdmc+")}\
-			.GME_route, .GME_hide {background: url(https://geo.inge.org.uk/userscripts/gme_icons_0_8_0.png) no-repeat #eee;}\
-			.GME_route { background-position: 7px 3px;}\
-			.GME_route.gme-button-active { background-position: 5px 1px;}\
-			.GME_hide { background-position: -17px 3px;}\
-			.GME_hide.gme-button-active { background-position: -19px 1px;}\
+			.GME_home { background-size: 18px 18px; background-position: center;background-image: url(\'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="50" height="50" viewBox="0 0 30 30" style="fill:%23000000;"%3E%3Cpath d="M 15 2 A 1 1 0 0 0 14.300781 2.2851562 L 3.3925781 11.207031 A 1 1 0 0 0 3.3554688 11.236328 L 3.3183594 11.267578 L 3.3183594 11.269531 A 1 1 0 0 0 3 12 A 1 1 0 0 0 4 13 L 5 13 L 5 24 C 5 25.105 5.895 26 7 26 L 23 26 C 24.105 26 25 25.105 25 24 L 25 13 L 26 13 A 1 1 0 0 0 27 12 A 1 1 0 0 0 26.681641 11.267578 L 26.666016 11.255859 A 1 1 0 0 0 26.597656 11.199219 L 25 9.8925781 L 25 6 C 25 5.448 24.552 5 24 5 L 23 5 C 22.448 5 22 5.448 22 6 L 22 7.4394531 L 15.677734 2.2675781 A 1 1 0 0 0 15 2 z M 18 15 L 22 15 L 22 23 L 18 23 L 18 15 z"%3E%3C/path%3E%3C/svg%3E\')}\
+			.GME_config { background-size: 18px 18px; background-position: center;background-image: url(\'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="50" height="50" viewBox="0 0 32 32" style="fill:%23000000;"%3E%3Cg id="surface1"%3E%3Cpath style=" " d="M 21.5 2.5 L 21.5 3.90625 C 20.664063 4.054688 19.886719 4.371094 19.21875 4.84375 L 18.1875 3.875 L 16.8125 5.34375 L 17.8125 6.28125 C 17.363281 6.9375 17.050781 7.6875 16.90625 8.5 L 15.5 8.5 L 15.5 10.5 L 16.90625 10.5 C 17.050781 11.328125 17.378906 12.085938 17.84375 12.75 L 16.78125 13.78125 L 18.21875 15.21875 L 19.25 14.15625 C 19.914063 14.621094 20.671875 14.949219 21.5 15.09375 L 21.5 16.5 L 23.5 16.5 L 23.5 15.09375 C 24.3125 14.949219 25.0625 14.636719 25.71875 14.1875 L 26.65625 15.1875 L 28.125 13.8125 L 27.15625 12.78125 C 27.628906 12.113281 27.945313 11.335938 28.09375 10.5 L 29.5 10.5 L 29.5 8.5 L 28.09375 8.5 C 27.949219 7.671875 27.621094 6.914063 27.15625 6.25 L 28.09375 5.3125 L 26.6875 3.90625 L 25.75 4.84375 C 25.085938 4.378906 24.328125 4.050781 23.5 3.90625 L 23.5 2.5 Z M 22.5 5.8125 C 24.554688 5.8125 26.1875 7.445313 26.1875 9.5 C 26.1875 11.554688 24.554688 13.1875 22.5 13.1875 C 20.445313 13.1875 18.8125 11.554688 18.8125 9.5 C 18.8125 7.445313 20.445313 5.8125 22.5 5.8125 Z M 9.53125 11.71875 L 7.6875 12.46875 L 8.40625 14.28125 C 7.453125 14.851563 6.640625 15.648438 6.0625 16.59375 L 4.28125 15.875 L 3.53125 17.71875 L 5.3125 18.4375 C 5.179688 18.964844 5.09375 19.523438 5.09375 20.09375 C 5.09375 20.664063 5.179688 21.21875 5.3125 21.75 L 3.53125 22.46875 L 4.28125 24.3125 L 6.0625 23.59375 C 6.640625 24.554688 7.445313 25.359375 8.40625 25.9375 L 7.6875 27.71875 L 9.53125 28.46875 L 10.25 26.6875 C 10.78125 26.820313 11.332031 26.90625 11.90625 26.90625 C 12.476563 26.90625 13.035156 26.820313 13.5625 26.6875 L 14.28125 28.46875 L 16.125 27.71875 L 15.40625 25.9375 C 16.351563 25.359375 17.148438 24.546875 17.71875 23.59375 L 19.53125 24.3125 L 20.28125 22.46875 L 18.46875 21.75 C 18.601563 21.21875 18.6875 20.664063 18.6875 20.09375 C 18.6875 19.523438 18.601563 18.964844 18.46875 18.4375 L 20.28125 17.71875 L 19.53125 15.875 L 17.71875 16.59375 C 17.148438 15.652344 16.351563 14.851563 15.40625 14.28125 L 16.125 12.46875 L 14.28125 11.71875 L 13.5625 13.53125 C 13.03125 13.398438 12.476563 13.3125 11.90625 13.3125 C 11.335938 13.3125 10.78125 13.398438 10.25 13.53125 Z M 11.90625 15.3125 C 14.570313 15.3125 16.6875 17.429688 16.6875 20.09375 C 16.6875 22.757813 14.570313 24.90625 11.90625 24.90625 C 9.242188 24.90625 7.09375 22.757813 7.09375 20.09375 C 7.09375 17.429688 9.242188 15.3125 11.90625 15.3125 Z "%3E%3C/path%3E%3C/g%3E%3C/svg%3E\')}\
+			.GME_route { background-size: 18px 18px; background-position: center;background-image: url(\'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"%3E%3Cpath d="M12 0c-4.198 0-8 3.403-8 7.602 0 4.198 3.469 9.21 8 16.398 4.531-7.188 8-12.2 8-16.398 0-4.199-3.801-7.602-8-7.602zm0 11c-1.657 0-3-1.343-3-3s1.343-3 3-3 3 1.343 3 3-1.343 3-3 3z"/%3E%3C/svg%3E\');background-repeat: no-repeat; background-color: #eee;}\
+			.GME_hide { background-size: 18px 18px; background-position: center;background-image: url(\'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"%3E%3Cpath d="M19.604 2.562l-3.346 3.137c-1.27-.428-2.686-.699-4.243-.699-7.569 0-12.015 6.551-12.015 6.551s1.928 2.951 5.146 5.138l-2.911 2.909 1.414 1.414 17.37-17.035-1.415-1.415zm-6.016 5.779c-3.288-1.453-6.681 1.908-5.265 5.206l-1.726 1.707c-1.814-1.16-3.225-2.65-4.06-3.66 1.493-1.648 4.817-4.594 9.478-4.594.927 0 1.796.119 2.61.315l-1.037 1.026zm-2.883 7.431l5.09-4.993c1.017 3.111-2.003 6.067-5.09 4.993zm13.295-4.221s-4.252 7.449-11.985 7.449c-1.379 0-2.662-.291-3.851-.737l1.614-1.583c.715.193 1.458.32 2.237.32 4.791 0 8.104-3.527 9.504-5.364-.729-.822-1.956-1.99-3.587-2.952l1.489-1.46c2.982 1.9 4.579 4.327 4.579 4.327z"/%3E%3C/svg%3E\');background-repeat: no-repeat; background-color: #eee;}\
+			.GME_route.gme-button-active {background-image: url(\'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"%3E%3Cpath d="M11.6,11C10.1,10.8,9,9.5,9,8c0-1.7,1.3-3,3-3c1.6,0,2.9,1.2,3,2.8L19,4c-1.4-2.4-4.1-4-7-4C7.8,0,4,3.4,4,7.6c0,2.3,1.1,4.9,2.8,7.9L11.6,11z"/%3E%3Cpath d="M7.8,17.3c1.2,2,2.6,4.2,4.2,6.7c4.5-7.2,8-12.2,8-16.4c0-0.5-0.1-1-0.2-1.5L7.8,17.3z"/%3E%3Cline stroke-linecap="round" stroke="black" x1="2.1" y1="21.3" x2="21.9" y2="2.7"/%3E%3C/svg%3E\'); }\
+			.GME_hide.gme-button-active { background-image: url(\'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"%3E%3Cpath d="M12.015 7c4.751 0 8.063 3.012 9.504 4.636-1.401 1.837-4.713 5.364-9.504 5.364-4.42 0-7.93-3.536-9.478-5.407 1.493-1.647 4.817-4.593 9.478-4.593zm0-2c-7.569 0-12.015 6.551-12.015 6.551s4.835 7.449 12.015 7.449c7.733 0 11.985-7.449 11.985-7.449s-4.291-6.551-11.985-6.551zm-.015 3c-2.209 0-4 1.792-4 4 0 2.209 1.791 4 4 4s4-1.791 4-4c0-2.208-1.791-4-4-4z"/%3E%3C/svg%3E\'); }\
 			.gme-button-refresh-labels { background-position: -320px 4px;}\
 			.gme-button-clear-labels { background-position: -69px 4px;}\
 			span.gme-distance-container { display: none; }\
 			span.gme-distance-container.show { display: inline-block; }\
-			.GME_info { background-size: 16px 16px; background-position: center;background-image: url("data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iaXNvLTg4NTktMSI/PjxzdmcgdmVyc2lvbj0iMS4xIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB4PSIwcHgiIHk9IjBweCIgdmlld0JveD0iMCAwIDMyIDMyIiA+PHBhdGggc3R5bGU9ImZpbGw6IzAzMDEwNDsiIGQ9Ik0xMCwxNmMxLjEwNSwwLDIsMC44OTUsMiwydjhjMCwxLjEwNS0wLjg5NSwyLTIsMkg4djRoMTZ2LTRoLTEuOTkyYy0xLjEwMiwwLTItMC44OTUtMi0yTDIwLDEySDggdjRIMTB6Ii8+PGNpcmNsZSBzdHlsZT0iZmlsbDojMDMwMTA0OyIgY3g9IjE2IiBjeT0iNCIgcj0iNCIvPjwvc3ZnPg0K")}\
+			.GME_info { background-size: 16px 16px; background-position: center;background-image: url(\'data:image/svg+xml,%3C%3Fxml version="1.0" encoding="iso-8859-1"%3F%3E%3Csvg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 32 32" %3E%3Cpath style="fill:%23030104;" d="M10,16c1.105,0,2,0.895,2,2v8c0,1.105-0.895,2-2,2H8v4h16v-4h-1.992c-1.102,0-2-0.895-2-2L20,12H8 v4H10z"/%3E%3Ccircle style="fill:%23030104;" cx="16" cy="4" r="4"/%3E%3C/svg%3E\')}\
 			.GME_info.gme-button-active {}\
 			#GME_loc, a.gme-button.leaflet-active {outline: none;}\
 			.leaflet-control-zoomwarning { top: 94px; }\
@@ -122,7 +148,14 @@
 			.gme-fieldgroup ul { margin: 0.5em 0; padding: 0; }\
 			.gme-fieldgroup li { display: inline-block; margin: 0 -1px -1px 0; background: #ddd; border: 1px solid #ccc; border-radius: 6px; padding: 0 0.5em; }\
 			.gme-xhair { cursor: crosshair; }\
+<<<<<<< HEAD
+			.map-button-container { margin-right: 5em; }\
+			.leaflet-control-layers-toggle { background-size: 75%; background-image: url(\'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 26 26"%3E%3Cdefs%3E%3Cstyle%3E.diamond%7Bopacity:0.8;fill:url(%23radialGradient);%7D.diamnondPath%7Bfill:url(%23linearGradient);%7D%3C/style%3E%3CradialGradient id="radialGradient" cx="170.89" cy="960.99" r="10.16" gradientTransform="translate(-161.12 -1073.84) scale(1.02 1.13)" gradientUnits="userSpaceOnUse"%3E%3Cstop offset="0.16" stop-color="gray"/%3E%3Cstop offset="1" stop-color="%23fff"/%3E%3C/radialGradient%3E%3ClinearGradient id="linearGradient" x1="13" x2="13" y2="15" gradientUnits="userSpaceOnUse"%3E%3Cstop offset="0" stop-color="%23b3b3b3"/%3E%3Cstop offset="1" stop-color="%234d4d4d"/%3E%3C/linearGradient%3E%3Csymbol id="layer" data-name="Nový symbol…" viewBox="0 0 26 15"%3E%3Cpolygon class="diamond" points="13.52 0 0 6.92 13.52 15 26 6.92 13.52 0"/%3E%3Cpath class="diamnondPath" d="M13.5,1.13,24.06,7,13.5,13.82,2.06,7,13.5,1.13m0-1.13L0,6.92,13.52,15,26,6.92,13.52,0Z"/%3E%3C/symbol%3E%3C/defs%3E%3Cuse width="26" height="15" transform="translate(0 11)" xlink:href="%23layer"/%3E%3Cuse width="26" height="15" transform="translate(0 5.57) scale(1 0.98)" xlink:href="%23layer"/%3E%3Cuse width="26" height="15" transform="translate(0) scale(1 0.98)" xlink:href="%23layer"/%3E%3C/svg%3E\'); }\
+			#GME_apikeys_field label { display: block; }\
+			#GME_apikeys_field label input { width: 75%; }',
+=======
 			.map-button-container { margin-right: 5em; }',
+>>>>>>> origin/master_Vylda
 			drag: '#cacheDetails .cacheImage { border: solid 1px #ccc; border-radius: 7px; padding-left: 5px; }\
 			.moveable { cursor: move; box-shadow: 0 1px 4px rgba(102, 51, 255, 0.3); }'
 		},
@@ -144,6 +177,11 @@
 						<h3>Maps to show in selector widget</h3>\
 						<ul id="GME_mapfields"></ul>\
 						<label>Default map source: &nbsp;<select name="GME_map_default" id="GME_map_default"></select></label>\
+						<label>Default hill shading source: &nbsp;<select name="GME_hill_shade_default" id="GME_hill_shade_default"></select></label>\
+					</div>\
+					<div class="gme-fieldgroup">\
+						<h3>Map API key</h3>\
+						<div id="GME_apikeys_field"></dov>\
 					</div>\
 				</div>\
 			</section>\
@@ -221,7 +259,11 @@
 			</div>'
 		},
 		script: {
+<<<<<<< HEAD
+			common: function() {
+=======
 			common: function () {
+>>>>>>> origin/master_Vylda
 				var that = this, callbackCount = 0, load_count = 0, JSONP;
 				function setEnv() {
 					// The script waits for the Leaflet API to load, and will abort if it does not find it after a minute.
@@ -279,7 +321,11 @@
 				function gmeInit(scriptArray) {
 					// Init routines that need either JQuery or Leaflet API, so must be run from load() rather than on script insertion.
 					var initScripts = {
+<<<<<<< HEAD
+						"config": function() {
+=======
 						"config": function () {
+>>>>>>> origin/master_Vylda
 							if (gmeConfig.env.storage) {
 								setConfig();
 								$("#GME_set").bind("click", storeSettings);
@@ -289,15 +335,25 @@
 								$("li.li-user ul").append("<li class='li-settings'><a class='icon-settings' id='gme-config-link' href='#GME_config' title='Configure Geocaching Map Enhancements extension'>Geocaching Map Enhancements</a></li>");
 							}
 						},
+<<<<<<< HEAD
+						"drop": function() {
+							$.fn.filterNode = function(name) {
+								return this.find("*").filter(function() {
+=======
 						"drop": function () {
 							$.fn.filterNode = function (name) {
 								return this.find("*").filter(function () {
+>>>>>>> origin/master_Vylda
 									return this.nodeName === name;
 								});
 							};
 							L.GME_dropHandler = L.Control.extend(dropHandlerObj);
 						},
+<<<<<<< HEAD
+						"map": function() {
+=======
 						"map": function () {
+>>>>>>> origin/master_Vylda
 							bounds_GB = new L.LatLngBounds(new L.LatLng(49, -9.5), new L.LatLng(62, 2.3));
 							bounds_IE = new L.LatLngBounds(new L.LatLng(51.2, -12.2), new L.LatLng(55.73, -5.366));
 							bounds_NI = new L.LatLngBounds(new L.LatLng(54, -8.25), new L.LatLng(55.73, -5.25));
@@ -308,14 +364,22 @@
 							L.GME_complexLayer = L.TileLayer.extend(complexLayerObj);
 							L.GME_genericLayer = genericLayerFn;
 						},
+<<<<<<< HEAD
+						"widget": function() {
+=======
 						"widget": function () {
+>>>>>>> origin/master_Vylda
 							L.GME_Widget = L.Control.extend(widgetControlObj);
 							if (window.Groundspeak && Groundspeak.Map && Groundspeak.Map.Control && Groundspeak.Map.Control.FindMyLocation) {
 								L.GME_FollowMyLocationControl = Groundspeak.Map.Control.FindMyLocation.extend(locationControlObj);
 							}
 							L.GME_ZoomWarning = L.Control.extend(zoomWarningObj);
 							if (L.LatLng.prototype.toUrl === undefined) {
+<<<<<<< HEAD
+								L.LatLng.prototype.toUrl = function() { return this.lat.toFixed(6) + "," + this.lng.toFixed(6); };
+=======
 								L.LatLng.prototype.toUrl = function () { return this.lat.toFixed(6) + "," + this.lng.toFixed(6); };
+>>>>>>> origin/master_Vylda
 							}
 							if ($.fancybox === undefined) {
 								console.info("GME: Fetching Fancybox");
@@ -457,7 +521,11 @@
 				}
 
 				if (window.console === undefined) {
+<<<<<<< HEAD
+					var logFn = function(text) { };
+=======
 					var logFn = function (text) { };
+>>>>>>> origin/master_Vylda
 					window.console = {
 						error: logFn,
 						log: logFn,
@@ -467,7 +535,11 @@
 				}
 
 				if (gmeConfig.env.xhr) {
+<<<<<<< HEAD
+					JSONP = function(url, id) {
+=======
 					JSONP = function (url, id) {
+>>>>>>> origin/master_Vylda
 						console.log("GME: Using GM_xhr to fetch " + url);
 						var s = document.getElementById("gme_jsonp_node");
 						if (!s) {
@@ -480,7 +552,11 @@
 						s.setAttribute("data-gme-callback", id);
 						document.dispatchEvent(new Event("GME_XHR_event"));
 					};
+<<<<<<< HEAD
+					document.addEventListener("GME_XHR_callback", function(e) {
+=======
 					document.addEventListener("GME_XHR_callback", function (e) {
+>>>>>>> origin/master_Vylda
 						var s = document.getElementById("gme_jsonp_node"),
 							callback = s.getAttribute("data-gme-callback");
 						if (typeof window[callback] === "function") {
@@ -495,7 +571,11 @@
 						return false;
 					});
 				} else {
+<<<<<<< HEAD
+					JSONP = function(url, id) {
+=======
 					JSONP = function (url, id) {
+>>>>>>> origin/master_Vylda
 						console.log("GME: Using JSONP to fetch " + url);
 						if (validURL(url)) {
 							var s = document.createElement("script");
@@ -510,8 +590,13 @@
 				gmeConfig.env.home = getHomeCoords();
 
 				this.parameters = gmeConfig.parameters;
+<<<<<<< HEAD
+				this.getVersion = function() { return gmeConfig.parameters.version; };
+				this.getGeograph = function(coords) {
+=======
 				this.getVersion = function () { return gmeConfig.parameters.version; };
 				this.getGeograph = function (coords) {
+>>>>>>> origin/master_Vylda
 					var callprefix = "GME_geograph_callback", call, host = "";
 					function searchLink(coords) {
 						// URIs for website search pages.
@@ -529,7 +614,11 @@
 						return host ? [host, "search.php?location=", coords.toUrl()].join("") : false;
 					}
 					function makeCallback(callname) {
+<<<<<<< HEAD
+						callbackCount++; return function(json) {
+=======
 						callbackCount++; return function (json) {
+>>>>>>> origin/master_Vylda
 							var html, i, p;
 							if (json.items && json.items.length > 0) {
 								html = ["<h3>Geograph images near ", DMM(coords), "</h3><p>"].join("");
@@ -559,10 +648,17 @@
 						console.error("GME: Bad coordinates to getGeograph");
 					}
 				};
+<<<<<<< HEAD
+				this.getHeight = function(coords) {
+					var callprefix = "GME_height_callback", call;
+					function makeCallback(callname) {
+						callbackCount++; return function(json) {
+=======
 				this.getHeight = function (coords) {
 					var callprefix = "GME_height_callback", call;
 					function makeCallback(callname) {
 						callbackCount++; return function (json) {
+>>>>>>> origin/master_Vylda
 							if (typeof json.astergdem === "number" && typeof json.lat === "number" && typeof json.lng === "number") {
 								var h, m;
 								if (json.astergdem === -9999) {
@@ -585,10 +681,17 @@
 						console.error("GME: Bad coordinates to getHeight");
 					}
 				};
+<<<<<<< HEAD
+				this.isGeographAvailable = function(coords) {
+					return bounds_GB.contains(coords) || bounds_DE.contains(coords) || bounds_IE.contains(coords) || bounds_CI.contains(coords);
+				};
+				this.isInUK = function(coords) {
+=======
 				this.isGeographAvailable = function (coords) {
 					return bounds_GB.contains(coords) || bounds_DE.contains(coords) || bounds_IE.contains(coords) || bounds_CI.contains(coords);
 				};
 				this.isInUK = function (coords) {
+>>>>>>> origin/master_Vylda
 					if (bounds_GB.contains(coords)) {
 						if (bounds_IE.contains(coords)) {
 							if (bounds_NI.contains(coords)) {
@@ -601,7 +704,11 @@
 					return false;
 				};
 				if (gmeConfig.env.geolocation) {
+<<<<<<< HEAD
+					this.seekHere = function() {
+=======
 					this.seekHere = function () {
+>>>>>>> origin/master_Vylda
 						function hereCallback(pos) {
 							that.seekByLatLng({ lat: pos.coords.latitude, lng: pos.coords.longitude });
 							$("#GME_hereSub").val("Go");
@@ -620,7 +727,11 @@
 						return false;
 					};
 				}
+<<<<<<< HEAD
+				this.seekByLatLng = function(latlng) {
+=======
 				this.seekByLatLng = function (latlng) {
+>>>>>>> origin/master_Vylda
 					if (validCoords(latlng)) {
 						var url = ["https://www.geocaching.com/seek/nearest.aspx?origin_lat=", latlng.lat, "&origin_long=", latlng.lng, that.parameters.filterFinds ? "&f=1" : ""].join("");
 						window.open(url, "_blank");
@@ -629,7 +740,11 @@
 					}
 				};
 			},
+<<<<<<< HEAD
+			config: function() {
+=======
 			config: function () {
+>>>>>>> origin/master_Vylda
 				function addSources(json) {
 					function setSrc(src) {
 						if (src.alt && src.tileUrl) {
@@ -660,6 +775,30 @@
 					} catch (e) {
 						alert("Map source string must be valid JSON.");
 						return;
+<<<<<<< HEAD
+					}
+				}
+				function exportCustom() {
+					$.fancybox($("<p/>").text(JSON.stringify(that.parameters.maps)).html());
+				}
+				function setDefault() {
+					if (localStorage.GME_custom) { delete localStorage.GME_custom; }
+					if (localStorage.GME_parameters) { delete localStorage.GME_parameters; }
+					if (localStorage.GME_cache) { delete localStorage.GME_cache; }
+					refresh();
+				}
+				function refresh(config) {
+					var dest = "https://www.geocaching.com/map/#",
+						mapLink = document.getElementById("map_linkto"),
+						uri;
+					if (config) {
+						dest += "GME_config";
+					}
+					if (mapLink) {
+						uri = mapLink.value;
+						if (uri) {
+							dest += uri.replace(/^http:\/\/coord.info\/map/, "");
+=======
 					}
 				}
 				function exportCustom() {
@@ -737,8 +876,91 @@
 					for (j = that.parameters.maps.length - 1; j >= 0; j--) {
 						if (that.parameters.maps[j].alt === that.parameters.defaultMap) {
 							that.parameters.maps[j].ignore = false;
+>>>>>>> origin/master_Vylda
+						}
+						document.location.href = dest;
+					} else {
+						document.location.hash = "";
+					}
+<<<<<<< HEAD
+					window.location.reload(false);
+					return false;
+				}
+				function setConfig() {
+					var i,
+						mapfields = "",
+						shadingSelect = "<option value=''>none</option>",
+						mapfields_del = "",
+						mapselect = "",
+						alt = "",
+						overlay, sel, overSel,
+						allMaps = that.parameters.maps,
+						allApiKeys = that.parameters.apiKeys;
+
+					for (i = 0; i < allMaps.length; i++) {
+						alt = allMaps[i].alt;
+						overlay = allMaps[i].overlay;
+						if (!overlay) { mapselect += "<option value='" + htmlEntities(alt) + "'>" + htmlEntities(alt) + "</option>"; }
+						else { shadingSelect += "<option value='" + htmlEntities(alt) + "'>" + htmlEntities(alt) + "</option>"; }
+						mapfields += "<li><label><input type='checkbox' " + (allMaps[i].ignore ? "" : "checked='checked' ") + "name='" + htmlEntities(alt) + "' id='checkbox-" + i + "' /> " + htmlEntities(alt) + (overlay ? " (Overlay)" : "") + "</label></li>";
+					}
+
+					// API keys
+					const mapsWithApiKey = allMaps.filter((map) => map.apiKey);
+					mapsWithApiKey.forEach((map) => {
+						const existingApiKey = allApiKeys && allApiKeys[map.apiKey] ? allApiKeys[map.apiKey] : "";
+						const label = document.createElement("label");
+						label.innerHTML = `${map.apiKey}&nbsp;`;
+						const input = document.createElement("input");
+						input.type = "text";
+						input.name = map.apiKey;
+						input.value = existingApiKey;
+						label.appendChild(input);
+						$("#GME_apikeys_field").append(label);
+					});
+
+					if (allMaps.length > 0) {
+						for (i = 0; i < allMaps.length; i++) {
+							alt = allMaps[i].alt;
+							mapfields_del += "<li><label><input type='checkbox' name='" + htmlEntities(alt) + "' id='checkbox-del-" + i + "' /> " + htmlEntities(alt) + (allMaps[i].overlay ? " (Overlay)" : "") + "</label></li>";
+						}
+					} else {
+						mapfields_del = "&lt; No custom maps installed &gt;";
+					}
+					$("#GME_mapfields").html(mapfields);
+					$("#GME_mapfields_del").html(mapfields_del);
+					$("#GME_map_default").html(mapselect);
+					$("#GME_hill_shade_default").html(shadingSelect);
+					sel = $("#GME_map_default").children();
+					for (i = sel.length - 1; i > -1; i--) {
+						if (sel[i].value === that.parameters.defaultMap) {
+							sel[i].selected = "selected";
 						}
 					}
+					overSel = $("#GME_hill_shade_default").children();
+					for (i = overSel.length - 1; i > -1; i--) {
+						if (overSel[i].value === that.parameters.defaultHillShade) {
+							overSel[i].selected = "selected";
+						}
+					}
+					$("#GME_filterFinds").attr("checked", that.parameters.filterFinds);
+					$("#GME_osgbSearch").attr("checked", that.parameters.osgbSearch);
+					$("#GME_follow").attr("checked", that.parameters.follow);
+					$("#GME_labelStyle").val(that.parameters.labels);
+					$("#GME_measure").val(that.parameters.measure);
+					$("#GME_brightness").val(that.parameters.brightness * 100);
+					$("#GME_version").html(that.parameters.version);
+				}
+				function storeSettings() {
+					var i, j, list, apiKeys;
+					that.parameters.defaultMap = $("#GME_map_default")[0].value;
+					that.parameters.defaultHillShade = $("#GME_hill_shade_default")[0].value;
+					list = $("#GME_mapfields input");
+					for (i = list.length - 1; i >= 0; i--) {
+						for (j = that.parameters.maps.length - 1; j >= 0; j--) {
+							if (that.parameters.maps[j].alt === list[i].name) {
+								that.parameters.maps[j].ignore = !list[i].checked;
+=======
 					list = $("#GME_mapfields_del input");
 					for (i = list.length - 1; i >= 0; i--) {
 						if (list[i].checked === true) {
@@ -782,16 +1004,32 @@
 							if (bearing < rose[0][i]) {
 								dir = rose[1][i];
 								break;
+>>>>>>> origin/master_Vylda
 							}
 						}
 						$("#gme-dist").html("<img style='vertical-align:text-bottom' alt='" + dir + "' src='/images/icons/compass/" + dir + ".gif'> " + dir + " " + formatDistance(here.distanceTo(there) * 1000) + " from here at bearing " + Math.round(bearing) + "&deg;");
 					}
+<<<<<<< HEAD
+					for (j = that.parameters.maps.length - 1; j >= 0; j--) {
+						if (that.parameters.maps[j].alt === that.parameters.defaultMap) {
+							that.parameters.maps[j].ignore = false;
+=======
 					function lost() {
 						if (watcher) {
 							navigator.geolocation.clearWatch(watcher);
+>>>>>>> origin/master_Vylda
 						}
 						alert("GME couldn't detect your location.\nDisable FollowMe mode in Geocaching Map Enhancements if this error pops up repeatedly.");
 					}
+<<<<<<< HEAD
+					list = $("#GME_mapfields_del input");
+					for (i = list.length - 1; i >= 0; i--) {
+						if (list[i].checked === true) {
+							for (j = that.parameters.maps.length - 1; j >= 0; j--) {
+								if (that.parameters.maps[j].alt === list[i].name) {
+									that.parameters.maps.splice(j, 1);
+									break;
+=======
 					if (that.parameters.follow) {
 						watcher = navigator.geolocation.watchPosition(found, lost, { timeout: 60000, maximumAge: 30000 });
 					} else {
@@ -868,9 +1106,305 @@
 								var j, type = t;
 								for (j = wptTypes.length - 1; j >= 0; j--) {
 									type = type.replace(wptTypes[j][0], wptTypes[j][1]);
+>>>>>>> origin/master_Vylda
 								}
 								return type;
 							}
+<<<<<<< HEAD
+						}
+					}
+
+					if (!that.parameters.apiKeys) {
+						that.parameters.apiKeys = {};
+					}
+					apiKeys = $("#GME_apikeys_field label input");
+					for (var ak = 0; ak < apiKeys.length; ak++) {
+						const field = apiKeys[ak];
+						if (field.value) {
+							that.parameters.apiKeys[field.name] = field.value;
+						} else if (that.parameters.apiKeys[field.name]) {
+							delete that.parameters.apiKeys[field.name];
+						}
+					}
+
+					that.parameters.brightness = $("#GME_brightness").val() / 100;
+					that.parameters.filterFinds = $("#GME_filterFinds")[0].checked ? true : false;
+					that.parameters.follow = $("#GME_follow")[0].checked ? true : false;
+					that.parameters.labels = $("#GME_labelStyle")[0].value;
+					that.parameters.measure = $("#GME_measure")[0].value;
+					that.parameters.osgbSearch = $("#GME_osgbSearch")[0].checked ? true : false;
+					localStorage.setItem("GME_parameters", JSON.stringify(that.parameters));
+					refresh();
+				}
+			},
+			cssTransitionsFix: function() {
+				//	<bugfix>
+				// Work around bug that breaks JQuery Mobile dialog boxes in Opera 12.
+				if (window.$ && $.support) {
+					$.support.cssTransitions = false;
+				}
+				//	</bugfix>
+			},
+			dist: function() {
+				$("#lblDistFromHome").parent().append("<br/><span id='gme-dist'><a href='#' id='gme-dist-link'>Check distance from here</a></span>");
+				$("#gme-dist-link").click(function() {
+					var there = new LatLon(mapLatLng.lat, mapLatLng.lng),
+						rose = [[22.5, 67.5, 112.5, 157.5, 202.5, 247.5, 292.5, 337.5], ["N", "NE", "E", "SE", "S", "SW", "W", "NW"]],
+						watcher;
+					function found(pos) {
+						var here = new LatLon(pos.coords.latitude, pos.coords.longitude),
+							bearing = here.bearingTo(there),
+							dir = "N", i;
+						for (i = 0; i < 8; i++) {
+							if (bearing < rose[0][i]) {
+								dir = rose[1][i];
+								break;
+							}
+						}
+						$("#gme-dist").html("<img style='vertical-align:text-bottom' alt='" + dir + "' src='/images/icons/compass/" + dir + ".gif'> " + dir + " " + formatDistance(here.distanceTo(there) * 1000) + " from here at bearing " + Math.round(bearing) + "&deg;");
+					}
+					function lost() {
+						if (watcher) {
+							navigator.geolocation.clearWatch(watcher);
+						}
+						alert("GME couldn't detect your location.\nDisable FollowMe mode in Geocaching Map Enhancements if this error pops up repeatedly.");
+					}
+					if (that.parameters.follow) {
+						watcher = navigator.geolocation.watchPosition(found, lost, { timeout: 60000, maximumAge: 30000 });
+					} else {
+						navigator.geolocation.getCurrentPosition(found, lost, { timeout: 60000, maximumAge: 30000 });
+					}
+					return false;
+				});
+			},
+			drag: function() {
+				that.dragStart = function(event) {
+					function GME_formatLOC(wpts) {
+						return wpts ? ['<?xml version="1.0" encoding="UTF-8"?>\n<loc version="1.0" src="Geocaching Map Enhancements v' + that.getVersion() + '">' + wpts.join('\n') + '</loc>'].join('\n') : null;
+					}
+					function GME_formatLOC_wpt(id, desc, coords, type, link) {
+						if (id && desc && coords) {
+							var t = "Geocache",
+								l = link ? ('\n\t<link text="' + link.desc + '">' + link.href + '</link>') : "";
+							switch (type) {
+								case "Original Coordinates": t = type; break;
+								case 217: t = "Parking Area"; break;
+								case 218: t = "Question to Answer"; break;
+								case 219: t = "Stages of a Multicache"; break;
+								case 220: t = "Final Location"; break;
+								case 221: t = "Trailhead"; break;
+								case 452: t = "Reference Point"; break;
+							}
+							return ('<waypoint>\n\t<name id="' + id + '"><![CDATA[' + desc + ']]></name>\n\t<coord lat="' + coords.lat + '" lon="' + coords.lng + '"/>\n\t<type>' + t + '</type>' + l + '\n</waypoint>');
+						}
+						console.warn("GME: Missing cache data - id:", id, "desc:", desc, "coords:", coords);
+						return null;
+					}
+					var c, dataURI, dt, i, locfmt,
+						id = $("#ctl00_ContentBody_CoordInfoLinkControl1_uxCoordInfoCode")[0].innerHTML,
+						loc = [GME_formatLOC_wpt(id, cache_coords.primary[0].name, cache_coords.primary[0], cache_coords.primary[0].type, { desc: "Cache Details", href: "https://coord.info/" + id })];
+					for (i = cache_coords.additional.length - 1; i >= 0; i--) {
+						c = cache_coords.additional[i];
+						loc.push(GME_formatLOC_wpt(c.pf + id.slice(2), [c.name, $("#awpt_" + c.pf).parent().parent().next().children()[2].innerHTML.trim()].join(" "), c, c.type));
+					}
+					if (cache_coords.primary[0].isUserDefined) {
+						loc.push(GME_formatLOC_wpt("GO" + id.slice(2), cache_coords.primary[0].name, { lat: cache_coords.primary[0].oldLatLng[0], lng: cache_coords.primary[0].oldLatLng[1] }, "Original Coordinates", { desc: "Cache Details", href: "https://coord.info/" + id }));
+					}
+					locfmt = GME_formatLOC(loc);
+					dataURI = "data:application/xml-loc," + encodeURIComponent(locfmt);
+					dt = event.originalEvent.dataTransfer;
+					if (window.DataTransfer !== undefined && dt.constructor === window.DataTransfer) {
+						dt.setData("application/gme-cache-coords", JSON.stringify(cache_coords));
+						dt.setData("application/xml-loc", locfmt);
+						dt.setData("text/x-moz-url", dataURI + "\nGME_waypoints.loc");
+						dt.setData("DownloadURL", "application/xml-loc:GME_waypoints.loc:" + dataURI);
+					}
+					dt.setData("text/uri-list", dataURI);
+					dt.setData("Text", locfmt);
+					dt.effectAllowed = "copy";
+					dt.setDragImage($('a[title="About Cache Types"] img')[0], 0, 0);
+				};
+			},
+			drop: function() {
+				var dropHandlerObj = {
+					onAdd: function(map) {
+						var container = $(map.getContainer());
+						this._map = map;
+						container.on("drop", this.drop(map));
+						container.on("dragover", this.dragOver);
+						return document.createElement("div");
+					},
+					onRemove: function(map) {
+						var container = $(map.getContainer());
+						container.off("drop", this.drop(map));
+						container.off("dragover", this.dragOver);
+					},
+					drop: function(map) {
+						return function(e) {
+							function typeToIcon(t) {
+								var j, type = t;
+								for (j = wptTypes.length - 1; j >= 0; j--) {
+									type = type.replace(wptTypes[j][0], wptTypes[j][1]);
+								}
+								return type;
+							}
+							function parseLOC(text) {
+								var i, l, w, t, len, lat, lng, name, points = { primary: [], additional: [] }, wpts = $($.parseXML(text)).find("waypoint");
+								for (i = 0, len = wpts.length; i < len; i++) {
+									w = $(wpts[i]);
+									lat = w.find("coord").attr("lat");
+									lng = w.find("coord").attr("lon");
+									name = w.find("name").attr("id") + ": " + w.find("name").text().trim();
+									if (isNaN(+lat) || isNaN(+lng) || lat < -90 || lat > 90) { return false; }
+									t = w.find("type").text();
+									if (/Geocache/i.test(t)) {
+										points.primary.push({ lat: lat, lng: lng, name: name, type: 2 });
+									} else {
+										l = points.primary.length;
+										if (l && /Original Coordinates/i.test(t)) {
+											points.primary[l - 1].oldLatLng = [lat, lng];
+											points.primary[l - 1].isUserDefined = true;
+										} else {
+											points.additional.push({ lat: lat, lng: lng, name: name, type: typeToIcon(t) });
+										}
+									}
+								}
+								return (points.additional.length + points.primary.length > 0) ? points : false;
+							}
+							function readLOC(e) {
+								var data = e.target.result, pts = parseLOC(data);
+								if (pts) {
+									console.info("GME: Received LOC file");
+									GME_displayPoints(pts, map, "dragdrop");
+								}
+							}
+							function parseGPX(text) {
+								var d, i, j, k, w, r, t, lat, lng, len, n, name = "", poly, type, points = { primary: [], additional: [], routes: [] }, gpx = $($.parseXML(text)), wpts = gpx.find("wpt"), tracks = gpx.find("trk"), segs, routes = gpx.find("rte");
+								for (i = 0, len = wpts.length; i < len; i++) {
+									w = $(wpts[i]);
+									lat = w.attr("lat");
+									lng = w.attr("lon");
+									n = w.filterNode("name");
+									d = w.filterNode("desc");
+									name = n.length > 0 ? n[0].textContent : "Point " + i;
+									name += (n.length > 0 && d.length > 0) ? " : " : "";
+									name += d.length > 0 ? d[0].textContent : "";
+									if (isNaN(+lat) || isNaN(+lng) || lat < -90 || lat > 90) { return false; }
+									t = w.find("sym").text();
+									if (/Geocache/i.test(t)) {
+										t = w.filterNode("groundspeak:type");
+										if (t.length > 0) {
+											type = t[0].textContent;
+										} else {
+											type = "Geocache";
+										}
+									} else {
+										type = t;
+									}
+									points[/Geocache/i.test(t) ? "primary" : "additional"].push({ lat: lat, lng: lng, name: name, type: typeToIcon(type) });
+								}
+								for (i = routes.length - 1; i >= 0; i--) {
+									poly = [];
+									r = $(routes[i]);
+									n = r.filterNode("name");
+									name = n.length > 0 ? n[0].textContent : "Route " + i;
+									wpts = r.find("rtept");
+									for (j = wpts.length - 1; j >= 0; j--) {
+										w = $(wpts[j]);
+										poly.push(new L.LatLng(w.attr("lat"), w.attr("lon")));
+									}
+									points.routes.push({ name: name, points: poly });
+								}
+								for (i = tracks.length - 1; i >= 0; i--) {
+									poly = [];
+									r = $(tracks[i]);
+									segs = r.find("trkseg");
+									for (j = segs.length - 1; j >= 0; j--) {
+										n = r.filterNode("name");
+										name = [(n.length > 0) ? n[0].textContent : "Track " + i, " segment ", j].join("");
+										wpts = $(segs[j]).find("trkpt");
+										for (k = wpts.length - 1; k >= 0; k--) {
+											w = $(wpts[k]);
+											poly.push(new L.LatLng(w.attr("lat"), w.attr("lon")));
+										}
+										points.routes.push({ name: name, points: poly });
+									}
+								}
+								return (points.additional.length + points.primary.length + points.routes.length > 0) ? points : false;
+							}
+							function readGPX(e) {
+								var data = e.target.result, pts = parseGPX(data);
+								if (pts) {
+									console.info("GME: Received GPX file");
+									GME_displayPoints(pts, map, "dragdrop");
+								}
+							}
+							e.stopPropagation();
+							e.preventDefault();
+							var i, data, dt = e.originalEvent.dataTransfer, file, files = dt.files, pts, reader;
+							try {
+								data = dt.getData("application/gme-cache-coords");
+								if (data) {
+									console.info("GME: Received GME data");
+									GME_displayPoints(JSON.parse(data), map, "dragdrop");
+									return;
+								}
+								data = dt.getData("text/plain");
+								if (data) {
+									pts = parseLOC(data);
+									if (pts) {
+										console.info("GME: Received LOC text");
+										GME_displayPoints(pts, map, "dragdrop");
+										return;
+									}
+									pts = parseGPX(data);
+									if (pts) {
+										console.info("GME: Received GPX text");
+										GME_displayPoints(pts, map, "dragdrop");
+										return;
+									}
+								}
+							} catch (E) { console.warn("GME: Drop: " + E); }
+							for (i = files.length - 1; i >= 0; i--) {
+								file = files[i];
+								if (/application\/xml-loc/.test(file.type) || /\.loc$/i.test(file.name)) {
+									reader = new FileReader();
+									reader.onload = readLOC;
+									reader.readAsText(file);
+								} else {
+									if (/application\/xml-gpx/.test(file.type) || /\.gpx$/i.test(file.name)) {
+										reader = new FileReader();
+										reader.onload = readGPX;
+										reader.readAsText(file);
+									} else {
+										console.warn("GME: Dropped file not recognised: " + file.name + ", (type: " + file.type + ")");
+									}
+								}
+							}
+						};
+					},
+					dragOver: function(e) {
+						var dt = e.originalEvent.dataTransfer;
+						function contains(array, value) {
+							if (array.indexOf) {
+								return array.indexOf(value) >= 0;
+							}
+							if (array.contains) {
+								return array.contains(value);
+							}
+							console.warn("GME: couldn\'t determine type of dragged data. Accepting anyway.");
+							return true;
+						}
+						if (dt && dt.types) {
+							try {
+								if (contains(dt.types, "application/gme-cache-coords") || contains(dt.types, "application/xml-gpx") || contains(dt.types, "application/xml-loc") || contains(dt.types, "text/plain") || contains(dt.types, "Files")) {
+									e.preventDefault();
+									return false;
+								}
+							} catch (e) {
+								console.error("GME: dragOver:", e);
+							}
+=======
 							function parseLOC(text) {
 								var i, l, w, t, len, lat, lng, name, points = { primary: [], additional: [] }, wpts = $($.parseXML(text)).find("waypoint");
 								for (i = 0, len = wpts.length; i < len; i++) {
@@ -1058,15 +1592,57 @@
 							case "show":
 								control.labels.toggleShow();
 								break;
+>>>>>>> origin/master_Vylda
 						}
 						return false;
 					}
+<<<<<<< HEAD
+				};
+			},
+			loadDefault: function() {
+				if (typeof window.$ === "function") {
+					gmeInit(gmeConfig.env.init);
+				}
+			},
+			labels: function() {
+				function GME_load_labels(control, div) {
+					function labelHandler() {
+						var action = this.getAttribute("data-gme-action"), cache = this.getAttribute("data-gme-cache");
+						switch (action) {
+							case "panTo":
+								if (control.labels.labels[cache]) {
+									control._map.panTo(control.labels.labels[cache][2]);
+								}
+								break;
+							case "refresh":
+								control.labels.refresh();
+								break;
+							case "clear":
+								control.labels.removeLabels();
+								break;
+							case "auto":
+								control.labels.toggleAuto();
+								break;
+							case "show":
+								control.labels.toggleShow();
+								break;
+						}
+						return false;
+					}
+					L.GME_identifyLayer = L.Class.extend({
+						initialize: function(latlng, options) {
+							L.Util.setOptions(this, options);
+							this._latlng = latlng;
+						},
+						onAdd: function(map) {
+=======
 					L.GME_identifyLayer = L.Class.extend({
 						initialize: function (latlng, options) {
 							L.Util.setOptions(this, options);
 							this._latlng = latlng;
 						},
 						onAdd: function (map) {
+>>>>>>> origin/master_Vylda
 							this._map = map;
 							this._el = L.DomUtil.create("div", "gme-identify-layer leaflet-zoom-hide");
 							this._el.innerHTML = this.options.label;
@@ -1076,7 +1652,11 @@
 							map.on("viewreset", this._reset, this);
 							this._reset();
 						},
+<<<<<<< HEAD
+						onRemove: function(map) {
+=======
 						onRemove: function (map) {
+>>>>>>> origin/master_Vylda
 							map.getPanes().overlayPane.removeChild(this._el);
 							map.off("viewreset", this._reset, this);
 						},
@@ -1084,11 +1664,19 @@
 							label: "Cache",
 							desc: "Long cache name"
 						},
+<<<<<<< HEAD
+						setPosition: function(ll) {
+							this._latlng = ll;
+							this._reset();
+						},
+						_reset: function() {
+=======
 						setPosition: function (ll) {
 							this._latlng = ll;
 							this._reset();
 						},
 						_reset: function () {
+>>>>>>> origin/master_Vylda
 							if (this._map) {
 								var pos = this._map.latLngToLayerPoint(this._latlng);
 								L.DomUtil.setPosition(this._el, pos);
@@ -1100,6 +1688,15 @@
 						autoUpdate: false,
 						labels: {},
 						labelLayer: new L.LayerGroup(),
+<<<<<<< HEAD
+						clearLabels: function() {
+							control._map.removeLayer(control.labels.labelLayer);
+						},
+						displayLabels: function() {
+							control._map.addLayer(control.labels.labelLayer);
+						},
+						refresh: function() {
+=======
 						clearLabels: function () {
 							control._map.removeLayer(control.labels.labelLayer);
 						},
@@ -1107,6 +1704,7 @@
 							control._map.addLayer(control.labels.labelLayer);
 						},
 						refresh: function () {
+>>>>>>> origin/master_Vylda
 							if (!(window.MapSettings && MapSettings.MapLayers && MapSettings.MapLayers.UTFGrid)) {
 								return;
 							}
@@ -1119,7 +1717,11 @@
 							}
 							setTimeout(control.labels.refreshLabels, 500);
 						},
+<<<<<<< HEAD
+						refreshLabels: function() {
+=======
 						refreshLabels: function () {
+>>>>>>> origin/master_Vylda
 							var c, p, q, r, tile, tilepos, tileref, gridref, zoom = control._map.getZoom();
 							if (!(window.MapSettings && MapSettings.MapLayers && MapSettings.MapLayers.UTFGrid)) {
 								return;
@@ -1169,12 +1771,20 @@
 								control.labels.displayLabels();
 							}
 						},
+<<<<<<< HEAD
+						removeLabels: function() {
+=======
 						removeLabels: function () {
+>>>>>>> origin/master_Vylda
 							$("#gme_cachelist").html("");
 							control.labels.labelLayer.clearLayers();
 							control.labels.labels = {};
 						},
+<<<<<<< HEAD
+						toggleAuto: function() {
+=======
 						toggleAuto: function () {
+>>>>>>> origin/master_Vylda
 							if (control.labels.autoUpdate) {
 								control.labels.autoUpdate = false;
 								control._map.off("moveend", control.labels.refresh);
@@ -1186,7 +1796,11 @@
 								control.labels.refresh();
 							}
 						},
+<<<<<<< HEAD
+						toggleShow: function() {
+=======
 						toggleShow: function () {
+>>>>>>> origin/master_Vylda
 							if (control.labels.showLabels) {
 								control.labels.showLabels = false;
 								$(".gme-button-labels-show").removeClass("gme-button-active");
@@ -1197,7 +1811,11 @@
 								control.labels.refresh();
 							}
 						},
+<<<<<<< HEAD
+						updateCachePanel: function() {
+=======
 						updateCachePanel: function () {
+>>>>>>> origin/master_Vylda
 							var i, j, sortorder = [], html = "";
 							for (i in control.labels.labels) {
 								if (control.labels.labels.hasOwnProperty(i)) {
@@ -1227,7 +1845,11 @@
 					$("#gme-labels-auto").on("change", control.labels.toggleAuto);
 				}
 			},
+<<<<<<< HEAD
+			loadHide: function() {
+=======
 			loadHide: function () {
+>>>>>>> origin/master_Vylda
 				function load() {
 					window.GME_control = new L.GME_Widget().addTo(map);
 					GME_control._layerControl = GME_load_map(map);
@@ -1237,17 +1859,29 @@
 				}
 				window.setTimeout(setEnv, 3000);
 			},
+<<<<<<< HEAD
+			loadListing: function() {
+=======
 			loadListing: function () {
+>>>>>>> origin/master_Vylda
 				var cache_coords = {},
 					mapLink = document.getElementById("ctl00_ContentBody_uxViewLargerMap");
 				function load() {
 					var parkUrl = "", label = "", i, parking, uri = "&pop=";
 					if (L.LatLng.prototype.toUrl === undefined) {
+<<<<<<< HEAD
+						L.LatLng.prototype.toUrl = function() { var obj = this; if (!(obj instanceof L.LatLng)) { return false; } return [L.Util.formatNum(obj.lat, 5), L.Util.formatNum(obj.lng, 5)].join(","); };
+					}
+					$("#map_canvas").replaceWith("<div style=\'width: 325px; height: 325px; position: relative;\' id=\'map_canvas2\'></div>");
+					if (gmeConfig.env.dragdrop) {
+						$("#cacheDetails .cacheImage").hover(function(e) { $("#cacheDetails .cacheImage").addClass("moveable"); }, function(e) { $("#cacheDetails .cacheImage").removeClass("moveable"); });
+=======
 						L.LatLng.prototype.toUrl = function () { var obj = this; if (!(obj instanceof L.LatLng)) { return false; } return [L.Util.formatNum(obj.lat, 5), L.Util.formatNum(obj.lng, 5)].join(","); };
 					}
 					$("#map_canvas").replaceWith("<div style=\'width: 325px; height: 325px; position: relative;\' id=\'map_canvas2\'></div>");
 					if (gmeConfig.env.dragdrop) {
 						$("#cacheDetails .cacheImage").hover(function (e) { $("#cacheDetails .cacheImage").addClass("moveable"); }, function (e) { $("#cacheDetails .cacheImage").removeClass("moveable"); });
+>>>>>>> origin/master_Vylda
 						$("#cacheDetails .cacheImage").attr("draggable", "true").on("dragstart", that.dragStart);
 						$("#cacheDetails .cacheImage a").removeAttr("href");
 					}
@@ -1278,13 +1912,21 @@
 					if (cache_coords.primary[0].oldLatLng || cache_coords.primary.length + cache_coords.additional.length > 1) {
 						uri += b64encode(JSON.stringify(cache_coords));
 						mapLink.href = mapLink.href.replace("http:", "https:") + uri;
+<<<<<<< HEAD
+						$('#ctl00_ContentBody_MapLinks_MapLinks a[href*="geocaching.com"]').attr("href", function(i, val) { return val + uri; });
+=======
 						$('#ctl00_ContentBody_MapLinks_MapLinks a[href*="geocaching.com"]').attr("href", function (i, val) { return val + uri; });
+>>>>>>> origin/master_Vylda
 					}
 					GME_displayPoints(cache_coords, GME_Map, "listing");
 				}
 				setEnv();
 			},
+<<<<<<< HEAD
+			loadMap: function() {
+=======
 			loadMap: function () {
+>>>>>>> origin/master_Vylda
 				function load() {
 					function goSearch(e) {
 						if (e.type === "click" || (e.which || e.keyCode) === 13) {
@@ -1321,7 +1963,11 @@
 				}
 				setEnv();
 			},
+<<<<<<< HEAD
+			loadSeek: function() {
+=======
 			loadSeek: function () {
+>>>>>>> origin/master_Vylda
 				function load() {
 					function goGR(e) {
 						if (e.type === "click" || (e.type === "keypress" && (e.which || e.keyCode) === 13)) {
@@ -1365,7 +2011,11 @@
 				}
 				setEnv();
 			},
+<<<<<<< HEAD
+			loadType: function() {
+=======
 			loadType: function () {
+>>>>>>> origin/master_Vylda
 				function load() {
 					window.GME_control = new L.GME_Widget();
 					GME_control._layerControl = GME_get_layerControl();
@@ -1380,8 +2030,13 @@
 					if (gmeConfig.env.dragdrop) {
 						map.addControl(new L.GME_dropHandler());
 					}
+<<<<<<< HEAD
+					setTimeout(function() {
+						map.eachLayer(function(layer) {
+=======
 					setTimeout(function () {
 						map.eachLayer(function (layer) {
+>>>>>>> origin/master_Vylda
 							if (layer instanceof L.TileLayer) {
 								map.removeLayer(layer);
 							}
@@ -1391,7 +2046,11 @@
 				}
 				window.setTimeout(setEnv, 3000);
 			},
+<<<<<<< HEAD
+			loadTrack: function() {
+=======
 			loadTrack: function () {
+>>>>>>> origin/master_Vylda
 				function load() {
 					var caches, coords, i, name;
 					function getLogPoints(layer) {
@@ -1409,11 +2068,19 @@
 						name = caches[i].textContent.trim();
 						map.eachLayer(getLogPoints, this);
 					}
+<<<<<<< HEAD
+					$(".TrackableLogTable").on("click", ".gme-action", function(e) { map.panTo(L.latLng(this.getAttribute("data-gme-ref").split(","))); });
+				}
+				setEnv();
+			},
+			map: function() {
+=======
 					$(".TrackableLogTable").on("click", ".gme-action", function (e) { map.panTo(L.latLng(this.getAttribute("data-gme-ref").split(","))); });
 				}
 				setEnv();
 			},
 			map: function () {
+>>>>>>> origin/master_Vylda
 				var bounds_CI,
 					bounds_DE,
 					bounds_GB,
@@ -1425,13 +2092,21 @@
 					},
 					wptTypes = [[/Geocache/i, "2"], [/Traditional Cache/i, "2"], [/Multi-cache/i, "3"], [/Virtual Cache/i, "4"], [/Letterbox Hybrid/i, "5"], [/Event Cache/i, "6"], [/Unknown cache/i, "8"], [/Webcam Cache/i, "11"], [/Cache In Trash Out Event/i, "13"], [/Wherigo Cache/i, "1858"], [/Locationless \(Reverse\) Cache/i, "12"], [/Mega-Event Cache/i, "453"], [/GPS Adventures Exhibit/i, "1304"], [/Groundspeak Block Party/i, "4738"], [/Groundspeak HQ/i, "3773"], [/Groundspeak Lost and Found Celebration/i, "3774"], [/Lost and Found Event Cache/i, "3653"], [/Project APE Cache/i, "9"], [/Earthcache/i, "137"], [/Question to Answer/i, "218"], [/Parking Area/i, "217"], [/Stages of a Multicache/i, "219"], [/Final Location/i, "220"], [/Trailhead/i, "221"], [/Reference Point/i, "452"]],
 					polylineObj = {
+<<<<<<< HEAD
+						initialize: function(pts, ops) {
+=======
 						initialize: function (pts, ops) {
+>>>>>>> origin/master_Vylda
 							L.Polyline.prototype.initialize.call(this, pts, ops);
 							this._length = 0;
 							this._markers = L.layerGroup();
 							this._updateMarkers();
 						},
+<<<<<<< HEAD
+						addLatLng: function(pt) {
+=======
 						addLatLng: function (pt) {
+>>>>>>> origin/master_Vylda
 							L.Polyline.prototype.addLatLng.call(this, pt);
 							var len = this._latlngs.length;
 							this._addMarker(pt, len);
@@ -1441,10 +2116,17 @@
 							}
 							return this;
 						},
+<<<<<<< HEAD
+						getData: function() {
+							return ((typeof window.btoa === "function") ? "data:application/xml-gpx;base64," : "data:application/xml-gpx,") + b64encode(this.getGPX());
+						},
+						getGPX: function() {
+=======
 						getData: function () {
 							return ((typeof window.btoa === "function") ? "data:application/xml-gpx;base64," : "data:application/xml-gpx,") + b64encode(this.getGPX());
 						},
 						getGPX: function () {
+>>>>>>> origin/master_Vylda
 							var name = $(".CommonUsername").attr("title"),
 								author = name ?
 									(name + '</name>\r\n\t\t\t<link href="https://www.geocaching.com/profile/?u=' + name + '"><text>' + name + '\'s profile</text></link>\r\n') :
@@ -1462,6 +2144,25 @@
 							gpx += "\t</rte>\r\n</gpx>";
 							return gpx;
 						},
+<<<<<<< HEAD
+						getLength: function() {
+							return this._length;
+						},
+						onAdd: function(map) {
+							map.addLayer(this._markers);
+							this._markers.eachLayer(function(a) { a.dragging.enable(); });
+							return L.Polyline.prototype.onAdd.call(this, map);
+						},
+						onRemove: function(map) {
+							map.removeLayer(this._markers);
+							return L.Polyline.prototype.onRemove.call(this, map);
+						},
+						removePt: function(num) {
+							this.spliceLatLngs(num - 1, 1);
+							this._updateMarkers();
+						},
+						setLatLngs: function(pts) {
+=======
 						getLength: function () {
 							return this._length;
 						},
@@ -1479,11 +2180,16 @@
 							this._updateMarkers();
 						},
 						setLatLngs: function (pts) {
+>>>>>>> origin/master_Vylda
 							L.Polyline.prototype.setLatLngs.call(this, pts);
 							this._updateMarkers();
 							return this;
 						},
+<<<<<<< HEAD
+						_addMarker: function(pt, num) {
+=======
 						_addMarker: function (pt, num) {
+>>>>>>> origin/master_Vylda
 							var mark = new L.Marker(pt, {
 								icon: new L.Icon({ draggable: "true", iconUrl: icons.marker, iconSize: new L.Point(15, 25), iconAnchor: new L.Point(8, 25) }),
 								zIndexOffset: 99, title: "Route Point #" + num
@@ -1496,11 +2202,19 @@
 								mark.dragging.enable();
 							}
 						},
+<<<<<<< HEAD
+						_moveMarker: function(e) {
+							this.spliceLatLngs(e.target._routeNum - 1, 1, e.target.getLatLng());
+							this._updateLength();
+						},
+						_updateLength: function() {
+=======
 						_moveMarker: function (e) {
 							this.spliceLatLngs(e.target._routeNum - 1, 1, e.target.getLatLng());
 							this._updateLength();
 						},
 						_updateLength: function () {
+>>>>>>> origin/master_Vylda
 							var i;
 							this._length = 0;
 							for (i = 1; i < this._latlngs.length; i++) {
@@ -1509,7 +2223,11 @@
 							this.fire("gme-length", { length: this._length });
 							return this._length;
 						},
+<<<<<<< HEAD
+						_updateMarkers: function() {
+=======
 						_updateMarkers: function () {
+>>>>>>> origin/master_Vylda
 							var i;
 							this._markers.clearLayers();
 							if (this._latlngs.length > 0) {
@@ -1522,7 +2240,11 @@
 						}
 					},
 					quadkeyLayerObj = {
+<<<<<<< HEAD
+						tile2quad: function(x, y, z) {
+=======
 						tile2quad: function (x, y, z) {
+>>>>>>> origin/master_Vylda
 							var i, digit, mask, quad = "";
 							for (i = z; i > 0; i--) {
 								digit = 0;
@@ -1533,7 +2255,11 @@
 							}
 							return quad;
 						},
+<<<<<<< HEAD
+						getTileUrl: function(tilePoint) {
+=======
 						getTileUrl: function (tilePoint) {
+>>>>>>> origin/master_Vylda
 							return L.Util.template(this._url, L.extend({
 								s: this._getSubdomain(tilePoint),
 								q: this.tile2quad(tilePoint.x, tilePoint.y, this._getZoomForUrl()),
@@ -1542,7 +2268,11 @@
 						}
 					},
 					complexLayerObj = {
+<<<<<<< HEAD
+						getTileUrl: function(tilePoint) {
+=======
 						getTileUrl: function (tilePoint) {
+>>>>>>> origin/master_Vylda
 							return L.Util.template(this._url, L.extend({
 								s4: tilePoint.x % 4 + 4 * (tilePoint.y % 4),
 								x100: this._getZoomForUrl() <= 13 ? "" : Math.floor(tilePoint.x / 100) + "/",
@@ -1561,6 +2291,240 @@
 							if (t == wptTypes[j][1]) {
 								return wptTypes[j][1];
 							}
+<<<<<<< HEAD
+						}
+						return 452;
+					}
+					for (i = plist.primary.length - 1; i >= 0; i--) {
+						p = plist.primary[i];
+						ll = L.latLng(p.lat, p.lng);
+						if (context === "listing" || context === "dragdrop" || p.isUserDefined) {
+							layers.addLayer(L.marker(ll, { icon: new PinIcon({ iconUrl: "/images/wpttypes/pins/" + checkType(p.type) + ".png", iconAnchor: L.point(10, 23) }), clickable: false, zIndexOffset: 98, title: p.name + (p.isUserDefined ? " (Corrected coordinates)" : "") }));
+							if (p.isUserDefined) {
+								layers.addLayer(L.marker(ll, { icon: new PinIcon({ iconSize: new L.Point(28, 23), iconAnchor: L.point(10, 23), iconUrl: icons.tick }), clickable: false, zIndexOffset: 99, title: p.name + " (Corrected coordinates)" }));
+							}
+						} else {
+							bounds.extend(ll);
+						}
+						if (p.isUserDefined) {
+							op = L.latLng(p.oldLatLng[0], p.oldLatLng[1]);
+							layers.addLayer(L.polyline([op, ll], { clickable: false, weight: 3 }));
+							if (context === "listing") {
+								layers.addLayer(L.circleMarker(op, { clickable: false, weight: 3, radius: 6 }));
+							}
+						}
+					}
+					for (i = plist.additional.length - 1; i >= 0; i--) {
+						p = plist.additional[i];
+						ll = L.latLng(p.lat, p.lng);
+						layers.addLayer(L.marker(ll, {
+							icon: new PinIcon({ iconUrl: "/images/wpttypes/pins/" + checkType(p.type) + ".png", iconAnchor: new L.Point(10, 23) }),
+							title: p.name, clickable: false
+						}));
+					}
+					if (plist.routes) {
+						for (i = plist.routes.length - 1; i >= 0; i--) {
+							if (plist.routes[i].points && plist.routes[i].points.length > 0) {
+								layers.addLayer(L.polyline(plist.routes[i].points));
+							}
+						}
+					}
+					bounds.extend(layers.getBounds());
+					if (bounds.isValid()) {
+						switch (context) {
+							case "listing":
+								map.fitBounds(bounds, { padding: [10, 10], maxZoom: 15 });
+								break;
+							case "clickthru":
+								if (map.getBoundsZoom(bounds) > 15) {
+									map.panTo(bounds.getCenter()).setZoom(15);
+								} else {
+									map.fitBounds(bounds);
+								}
+								break;
+							default:
+								map.panTo(bounds.getCenter());
+						}
+					}
+					map.addLayer(layers);
+					return bounds;
+				}
+				function genericLayerFn(url, options) {
+					function filterOpts(opts) {
+						/* Remove GME's internal options, so they don't get passed to servers (WMS in particular). */
+						var opt, filtered = {}, exclude = ["tileUrl", "ignore", "alt"];
+						for (opt in opts) {
+							if (exclude.indexOf(opt) === -1) {
+								filtered[opt] = options[opt];
+							}
+						}
+						return filtered;
+					}
+					var filteredOpts = filterOpts(options);
+
+					if (typeof url === "string") {
+						return (/\{q\}/).test(url) ? (new L.GME_QuadkeyLayer(url, filteredOpts)) : ((/\{s4\}|\{x100\}/).test(url) ? (new L.GME_complexLayer(url, filteredOpts)) : ((/\{x\}/).test(url) ? (new L.TileLayer(url, filteredOpts)) : (new L.TileLayer.WMS(url, filteredOpts))));
+					}
+					console.error("GME: Bad map source: " + JSON.stringify(options));
+					return undefined;
+				}
+				function setBrightness(e) {
+					var brightness = this.brightness || that.parameters.brightness;
+					if (brightness < 1) {
+						$(".leaflet-container").css("backgroundColor", "#000");
+					} else {
+						$(".leaflet-container").css("backgroundColor", "#ddd");
+					}
+					if (e.layer._url && /^http/.test(e.layer._url) && e.layer.options && !e.layer.options.overlay) {
+						e.layer.setOpacity(brightness);
+					}
+				}
+				function switchLayer(e) {
+					var layer = e.layer;
+					if (layer.options && layer.options.tileUrl && !layer.options.overlay) {
+						this.layersMaxZoom = layer.options.maxZoom;
+						this.layersMinZoom = layer.options.minZoom;
+						if (isNaN(layer.options.maxZoom) || !isNaN(layer.options.minZoom)) {
+							this._zoomBoundLayers[L.stamp(layer)] = layer;
+							this._updateZoomLevels();
+						}
+						if (this.getZoom() > this.layersMaxZoom) { this.setZoom(this.layersMaxZoom); }
+						if (this.getZoom() < this.layersMinZoom) { this.setZoom(this.layersMinZoom); }
+						this.brightness = e.layer.options.brightness || that.parameters.brightness;
+					}
+				}
+
+				function GME_get_layerControl0(map) {
+					var maps = {}, overlays = {}, allMaps = that.parameters.maps, baseMaps, control, i, layer, src;
+					for (baseMaps = 0, i = 0; i < allMaps.length; i++) {
+						src = allMaps[i];
+						if (!src.ignore) {
+							layer = L.GME_genericLayer(src.tileUrl, src);
+							if (layer) {
+								if (src.overlay) {
+									overlays[src.alt] = layer;
+								} else {
+									if (src.alt === that.parameters.defaultMap) {
+										layer.default = true;
+									}
+									maps[src.alt] = layer;
+									baseMaps++;
+								}
+							}
+						}
+					}
+					if (baseMaps > 0) {
+						// Only return a new control if we have some basemaps.
+						control = L.control.layers(maps, overlays);
+						control.setDefault = function() {
+							var defLayer, j;
+							for (j in this._layers) {
+								if (this._layers.hasOwnProperty(j) && this._layers[j].layer.default) {
+									defLayer = j;
+								}
+							}
+							if (!defLayer) {
+								defLayer = Object.keys(this._layers)[0];
+							}
+							if (this._map && defLayer !== undefined) {
+								this._map.addLayer(this._layers[defLayer].layer, true);
+							}
+							return defLayer;
+						};
+					}
+					return control;
+				}
+
+				function GME_get_layerControl(map) {
+					var maps = {}, overlays = {}, allMaps = that.parameters.maps, apiKeys = that.parameters.apiKeys,
+						baseMaps, control, i, layer, src;
+					for (baseMaps = 0, i = 0; i < allMaps.length; i++) {
+						src = allMaps[i];
+						if (!src.ignore) {
+							let tileUrl = src.tileUrl;
+
+							if (apiKeys && src.apiKey && src.apiKeyQuery) {
+								const apiKey = apiKeys[src.apiKey];
+								if (apiKey) {
+									var replacedTemplate = src.apiKeyQuery.replace(/\{apikey\}/, apiKey);
+									const url = new URL(tileUrl);
+									const search = url.search;
+									url.search = search ? `${search}&${replacedTemplate}` : `?${replacedTemplate}`;
+									tileUrl = decodeURI(url.href);
+								}
+							}
+
+							layer = L.GME_genericLayer(tileUrl, src);
+							if (layer) {
+								if (src.overlay) {
+									overlays[src.alt] = layer;
+									if (src.alt === that.parameters.defaultHillShade) {
+										layer.default = true;
+									}
+								} else {
+									if (src.alt === that.parameters.defaultMap) {
+										layer.default = true;
+									}
+									maps[src.alt] = layer;
+									baseMaps++;
+								}
+							}
+						}
+					}
+					if (baseMaps > 0) {
+						// Only return a new control if we have some basemaps.
+						control = L.control.layers(maps, overlays);
+						control.setDefault = function() {
+							var defLayer, defOverlay, j;
+							for (j in this._layers) {
+								if (this._layers.hasOwnProperty(j)
+									&& this._layers[j].layer.default) {
+									if (!this._layers[j].overlay) {
+										defLayer = j;
+									} else {
+										defOverlay = j;
+									}
+								}
+							}
+							if (!defLayer) {
+								defLayer = Object.keys(this._layers)[0];
+							}
+							if (this._map && defLayer !== undefined) {
+								this._map.addLayer(this._layers[defLayer].layer, true);
+							}
+							if (this._map && defOverlay !== undefined) {
+								this._map.addLayer(this._layers[defOverlay].layer, true);
+							}
+							return defLayer;
+						};
+					}
+					return control;
+				}
+				function GME_load_map(map) {
+					var control = GME_get_layerControl(),
+						layer;
+
+					map.on("layeradd", switchLayer);
+					if (document.createElement("div").style.opacity !== undefined) {
+						map.on("layeradd", setBrightness);
+					}
+
+					/* If we're adding our own map selector control, we need to manually remove any pre-existing map layers.  Otherwise, they persist in the background underneath
+					 * the layers provided by GME.	We check for the _url or _google attribute to distinguish map layers from other Leaflet layers like controls or popups */
+					if (control) {
+						if (gmeConfig.env.page === "maps" || gmeConfig.env.page === "track" || gmeConfig.env.page === "hide" || gmeConfig.env.page === "hide") {
+							$($(".leaflet-control-layers")[0]).remove();
+							for (layer in map._layers) {
+								if (map._layers[layer] instanceof L.TileLayer) {
+									if (window.MapSettings !== undefined && MapSettings.MapLayers !== undefined && MapSettings.MapLayers.Geocache === map._layers[layer]) {
+										// Leave geocache layer in place
+									} else {
+										map.removeLayer(map._layers[layer]);
+									}
+								}
+							}
+						}
+=======
 						}
 						return 452;
 					}
@@ -1726,12 +2690,17 @@
 								}
 							}
 						}
+>>>>>>> origin/master_Vylda
 						map.addControl(control);
 						control.setDefault();
 					}
 				}
 			},
+<<<<<<< HEAD
+			osgb: function() {
+=======
 			osgb: function () {
+>>>>>>> origin/master_Vylda
 				function OSGridToLatLng(E, N) {
 					var a = 6377563.396,
 						b = 6356256.910,
@@ -1858,8 +2827,13 @@
 					return null;
 				}
 			},
+<<<<<<< HEAD
+			seek: function() {
+				this.seekGR = function(searchVal) {
+=======
 			seek: function () {
 				this.seekGR = function (searchVal) {
+>>>>>>> origin/master_Vylda
 					if (searchVal.length > 0) {
 						var coords = parseGR(searchVal);
 						if (coords !== null) {
@@ -1870,9 +2844,15 @@
 					}
 				};
 			},
+<<<<<<< HEAD
+			widget: function() {
+				var locationControlObj = {
+					onAdd: function(map) {
+=======
 			widget: function () {
 				var locationControlObj = {
 					onAdd: function (map) {
+>>>>>>> origin/master_Vylda
 						var el, tracking = false, container = L.DomUtil.create("div", "leaflet-control-toolbar groundspeak-control-findmylocation gme-left");
 						function located(l) {
 							this.panTo(l.latlng);
@@ -1912,7 +2892,11 @@
 				},
 					widgetControlObj = {
 						options: { position: "bottomleft" },
+<<<<<<< HEAD
+						onAdd: function(contextmap) {
+=======
 						onAdd: function (contextmap) {
+>>>>>>> origin/master_Vylda
 							var elem, container = L.DomUtil.create("div", "leaflet-control-gme"), control = this, html = "";
 							function onPopup(e) {
 								if (e.layer._container && /leaflet-popup/.test(e.layer._container.className)) {
@@ -1954,7 +2938,11 @@
 								if (action === "removeMarker" && data) { control.removeMarker(data); }
 								if (action === "removeDistMarker" && data) { control.removeDistMarker(data); }
 								if (action === "toggleCaches") { control.toggleCaches(); }
+<<<<<<< HEAD
+								$(".leaflet-popup-close-button").each(function() { this.click(); });
+=======
 								$(".leaflet-popup-close-button").each(function () { this.click(); });
+>>>>>>> origin/master_Vylda
 							}
 							function dragGPXHandler(e) {
 								e.originalEvent.dataTransfer.effectAllowed = "copy";
@@ -1993,10 +2981,17 @@
 							container.innerHTML += "<span class=\'gme-button gme-button-l gme-button-r gme-scale-container\' title=\'Approximate width of the full map view\' style=\'cursor:help;\'>Width: <span class=\'gme-scale\'>-</span></span><span class=\'gme-distance-container gme-button gme-button-r\' title=\'Measured distance\'>Route: <span class=\'gme-distance\'>" + formatDistance(0) + "</span></span>";
 							contextmap.addControl(new L.GME_ZoomWarning()).on("layeradd", onPopup).on("layerremove", offPopup).on("viewreset", this.updateScale, this);
 							$(container).on("click", ".gme-button", this, widgetHandler);
+<<<<<<< HEAD
+							$(window).on("resize", this, (function(context) { var t = { timer: null }; return function() { context.updateScale(context._map, t); }; }(this)));
+							return container;
+						},
+						clearDist: function() {
+=======
 							$(window).on("resize", this, (function (context) { var t = { timer: null }; return function () { context.updateScale(context._map, t); }; }(this)));
 							return container;
 						},
 						clearDist: function () {
+>>>>>>> origin/master_Vylda
 							this._dist_line.off("gme-length");
 							this._map.removeLayer(this._dist_line);
 							delete this._dist_line;
@@ -2004,15 +2999,26 @@
 							$(".gme-distance").html(formatDistance(0));
 							$(".gme-scale-container").addClass("gme-button-r");
 						},
+<<<<<<< HEAD
+						clearMarkers: function() {
+							this._markers.clearLayers();
+						},
+						dropDist: function(ll) {
+=======
 						clearMarkers: function () {
 							this._markers.clearLayers();
 						},
 						dropDist: function (ll) {
+>>>>>>> origin/master_Vylda
 							if (!validCoords(ll)) { return; }
 							var dist, formatted;
 							if (this._dist_line === undefined) {
 								this._dist_line = new L.GME_DistLine([ll], { clickable: false });
+<<<<<<< HEAD
+								this._dist_line.on("gme-length", function(e) { $(this._map._container).find(".gme-distance").html(formatDistance(e.length)); });
+=======
 								this._dist_line.on("gme-length", function (e) { $(this._map._container).find(".gme-distance").html(formatDistance(e.length)); });
+>>>>>>> origin/master_Vylda
 								this._map.addLayer(this._dist_line);
 								$(this._map._container).find(".gme-distance-container").addClass("show");
 								$(this._map._container).find(".gme-scale-container").removeClass("gme-button-r");
@@ -2020,13 +3026,21 @@
 								this._dist_line.addLatLng(ll);
 							}
 						},
+<<<<<<< HEAD
+						exportDist: function(e) {
+=======
 						exportDist: function (e) {
+>>>>>>> origin/master_Vylda
 							if (!this._dist_line) { return; }
 							e.download = "ExportedRoute.gpx";
 							e.href = "data:application/xml-gpx," + encodeURIComponent(this._dist_line.getGPX());
 							return false;
 						},
+<<<<<<< HEAD
+						dropMarker: function(ll, rad) {
+=======
 						dropMarker: function (ll, rad) {
+>>>>>>> origin/master_Vylda
 							if (!validCoords(ll)) { return; }
 							var circle,
 								defaultRadius = 0.161,
@@ -2066,10 +3080,17 @@
 							r = (radius / m).toFixed(3) + " " + unit;
 							circle.bindPopup("<p><strong>" + label + "</strong><br/>Radius: " + r + "<br/>Centre: decimal " + ll.toUrl() + "<br/><strong>" + DMM(ll) + "</strong><br/><span style='float:right;'><a class='gme-event' data-gme-action='removeMarker' data-gme-ref='" + group._leaflet_id + "'>Clear</a>, <a class='gme-event' data-gme-action='clearMarkers'>Clear All</a></span></p>");
 						},
+<<<<<<< HEAD
+						getPostcode: function(coords) {
+							var that = this, callprefix = "GME_postcode_callback", call;
+							function makeCallback(callname) {
+								callbackCount++; return function(json) {
+=======
 						getPostcode: function (coords) {
 							var that = this, callprefix = "GME_postcode_callback", call;
 							function makeCallback(callname) {
 								callbackCount++; return function (json) {
+>>>>>>> origin/master_Vylda
 									var m;
 									if (json !== undefined && json.status === 200) {
 										if (json.result && json.result.length > 0) {
@@ -2097,19 +3118,36 @@
 								console.error("GME: Bad coordinates to getPostcode");
 							}
 						},
+<<<<<<< HEAD
+						panToHome: function() {
+=======
 						panToHome: function () {
+>>>>>>> origin/master_Vylda
 							if (gmeConfig.env.home) {
 								this._map.panTo(gmeConfig.env.home);
 								return true;
 							}
 							return false;
 						},
+<<<<<<< HEAD
+						removeDistMarker: function(mark) {
+=======
 						removeDistMarker: function (mark) {
+>>>>>>> origin/master_Vylda
 							if (this._dist_line) {
 								this._dist_line.removePt(mark);
 								$(this._map._container).find(".gme-distance").html(formatDistance(this._dist_line.getLength()));
 							}
 						},
+<<<<<<< HEAD
+						removeMarker: function(mark) {
+							this._markers.removeLayer(this._markers._layers[mark]);
+						},
+						removeMarkers: function(mark) {
+							this._markers.clearLayer(this._markers._layers[mark]);
+						},
+						showInfo: function(e) {
+=======
 						removeMarker: function (mark) {
 							this._markers.removeLayer(this._markers._layers[mark]);
 						},
@@ -2117,6 +3155,7 @@
 							this._markers.clearLayer(this._markers._layers[mark]);
 						},
 						showInfo: function (e) {
+>>>>>>> origin/master_Vylda
 							var control = this, popupContent = "<p>", popup = new L.Popup(), i;
 
 							for (i = 0; i < this.tools.length; i++) {
@@ -2133,6 +3172,20 @@
 						tools: [
 							{
 								name: "Coords",
+<<<<<<< HEAD
+								getHTML: function(coords, zoom, map) {
+									var ll = coords.toUrl();
+									return "<strong>" + DMM(coords) + "</strong><br/>Dec: <a href='geo:" + ll + "?z=" + zoom + "'>" + ll + "</a></br>";
+								},
+								isValid: function(coords, zoom) { return true; }
+							},
+							{
+								name: "List caches",
+								getHTML: function(coords, zoom, map) {
+									return "<a title='List " + (that.parameters.filterFinds ? "unfound " : "") + "caches near point' href='https://www.geocaching.com/seek/nearest.aspx?lat=" + coords.lat + "&lng=" + coords.lng + (that.parameters.filterFinds ? "&f=1" : "") + "' target='_blank' rel='noopener noreferrer'>List caches</a>";
+								},
+								isValid: function(coords, zoom) { return true; }
+=======
 								getHTML: function (coords, zoom, map) {
 									var ll = coords.toUrl();
 									return "<strong>" + DMM(coords) + "</strong><br/>Dec: <a href='geo:" + ll + "?z=" + zoom + "'>" + ll + "</a></br>";
@@ -2145,98 +3198,173 @@
 									return "<a title='List " + (that.parameters.filterFinds ? "unfound " : "") + "caches near point' href='https://www.geocaching.com/seek/nearest.aspx?lat=" + coords.lat + "&lng=" + coords.lng + (that.parameters.filterFinds ? "&f=1" : "") + "' target='_blank' rel='noopener noreferrer'>List caches</a>";
 								},
 								isValid: function (coords, zoom) { return true; }
+>>>>>>> origin/master_Vylda
 							},
 							{
 								name: "Geograph",
 								action: "getGeograph",
+<<<<<<< HEAD
+								getHTML: function(coords, zoom, map) {
+									return "<a href='#' title='Show Geograph images near this point' class='gme-event' data-gme-action='getGeograph' data-gme-coords='" + coords.toUrl() + "'>Geograph</a>";
+								},
+								isValid: function(coords, zoom) {
+=======
 								getHTML: function (coords, zoom, map) {
 									return "<a href='#' title='Show Geograph images near this point' class='gme-event' data-gme-action='getGeograph' data-gme-coords='" + coords.toUrl() + "'>Geograph</a>";
 								},
 								isValid: function (coords, zoom) {
+>>>>>>> origin/master_Vylda
 									return bounds_GB.contains(coords) || bounds_DE.contains(coords) || bounds_IE.contains(coords) || bounds_CI.contains(coords);
 								}
 							},
 							{
 								name: "Directions",
+<<<<<<< HEAD
+								getHTML: function(coords, zoom, map) {
+									return "<a title='Launch Google Directions from home to this point' target='_blank' rel='noopener noreferrer' href='https://www.google.com/maps/dir/?api=1&origin=" + gmeConfig.env.home.toUrl() + "&destination=" + coords.toUrl() + "'>Directions</a>";
+								},
+								isValid: function(coords, zoom) {
+=======
 								getHTML: function (coords, zoom, map) {
 									return "<a title='Launch Google Directions from home to this point' target='_blank' rel='noopener noreferrer' href='https://www.google.com/maps/dir/?api=1&origin=" + gmeConfig.env.home.toUrl() + "&destination=" + coords.toUrl() + "'>Directions</a>";
 								},
 								isValid: function (coords, zoom) {
+>>>>>>> origin/master_Vylda
 									return !!gmeConfig.env.home;
 								}
 							},
 							{
 								name: "Wikimapia",
+<<<<<<< HEAD
+								getHTML: function(coords, zoom, map) {
+									var centre = map.getCenter();
+									return "<a title='Go to wikimapia' target='_blank' rel='noopener noreferrer' href='http://wikimapia.org/#lat=" + centre.lat + "&lon=" + centre.lng + "&z=" + zoom + "'>Wikimapia</a>";
+								},
+								isValid: function(coords, zoom) {
+=======
 								getHTML: function (coords, zoom, map) {
 									var centre = map.getCenter();
 									return "<a title='Go to wikimapia' target='_blank' rel='noopener noreferrer' href='http://wikimapia.org/#lat=" + centre.lat + "&lon=" + centre.lng + "&z=" + zoom + "'>Wikimapia</a>";
 								},
 								isValid: function (coords, zoom) {
+>>>>>>> origin/master_Vylda
 									return true;
 								}
 							},
 							{
 								name: "Marker",
+<<<<<<< HEAD
+								getHTML: function(coords, zoom, map) {
+									return "<a title='Drop route marker onto map' href='#' class='gme-event' data-gme-action='dropMarker' data-gme-coords='" + coords.toUrl() + "'>Marker</a>";
+								},
+								isValid: function(coords, zoom) {
+=======
 								getHTML: function (coords, zoom, map) {
 									return "<a title='Drop route marker onto map' href='#' class='gme-event' data-gme-action='dropMarker' data-gme-coords='" + coords.toUrl() + "'>Marker</a>";
 								},
 								isValid: function (coords, zoom) {
+>>>>>>> origin/master_Vylda
 									return true;
 								}
 							},
 							{
 								name: "MAGIC",
+<<<<<<< HEAD
+								getHTML: function(coords, zoom, map) {
+									var b = map.getBounds();
+									return "<a title='Show MAGIC map of environmentally sensitive areas' target='_blank' rel='noopener noreferrer' href='http://magic.defra.gov.uk/MagicMap.aspx?srs=WGS84&startscale=" + (Math.cos(map.getCenter().lat * L.LatLng.DEG_TO_RAD) * 684090188 * Math.abs(b.getSouthWest().lng - b.getSouthEast().lng)) / map.getSize().x + "&layers=LandBasedSchemes,12,24:HabitatsAndSpecies,38:Designations,6,10,13,16,34,37,40,72,94&box=" + b.toBBoxString().replace(/,/g, ":") + "'>MAGIC</a>";
+								},
+								isValid: function(coords, zoom) {
+=======
 								getHTML: function (coords, zoom, map) {
 									var b = map.getBounds();
 									return "<a title='Show MAGIC map of environmentally sensitive areas' target='_blank' rel='noopener noreferrer' href='http://magic.defra.gov.uk/MagicMap.aspx?srs=WGS84&startscale=" + (Math.cos(map.getCenter().lat * L.LatLng.DEG_TO_RAD) * 684090188 * Math.abs(b.getSouthWest().lng - b.getSouthEast().lng)) / map.getSize().x + "&layers=LandBasedSchemes,12,24:HabitatsAndSpecies,38:Designations,6,10,13,16,34,37,40,72,94&box=" + b.toBBoxString().replace(/,/g, ":") + "'>MAGIC</a>";
 								},
 								isValid: function (coords, zoom) {
+>>>>>>> origin/master_Vylda
 									return that.isInUK(coords);
 								}
 							},
 							{
 								name: "Postcode",
+<<<<<<< HEAD
+								getHTML: function(coords, zoom, map) {
+									return "<a title='Fetch location data from postcodes.io' href='#' class='gme-event' data-gme-action='getPostcode' data-gme-coords='" + coords.toUrl() + "'>Postcode</a>";
+								},
+								isValid: function(coords, zoom) {
+=======
 								getHTML: function (coords, zoom, map) {
 									return "<a title='Fetch location data from postcodes.io' href='#' class='gme-event' data-gme-action='getPostcode' data-gme-coords='" + coords.toUrl() + "'>Postcode</a>";
 								},
 								isValid: function (coords, zoom) {
+>>>>>>> origin/master_Vylda
 									return that.isInUK(coords);
 								}
 							},
 							{
 								name: "Height",
+<<<<<<< HEAD
+								getHTML: function(coords, zoom, map) {
+									return "<a title='Height of point above sea level' href='#' class='gme-event' data-gme-action='getHeight' data-gme-coords='" + coords.toUrl() + "'>Height</a>";
+								},
+								isValid: function(coords, zoom) {
+=======
 								getHTML: function (coords, zoom, map) {
 									return "<a title='Height of point above sea level' href='#' class='gme-event' data-gme-action='getHeight' data-gme-coords='" + coords.toUrl() + "'>Height</a>";
 								},
 								isValid: function (coords, zoom) {
+>>>>>>> origin/master_Vylda
 									return (coords.lat > -65 && coords.lat < 83);
 								}
 							},
 							{
 								name: "StreetView",
+<<<<<<< HEAD
+								getHTML: function(coords, zoom, map) {
+									return "<a title='Launch Google Streetview' target='_blank' rel='noopener noreferrer' href='https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=" + coords.toUrl() + "'>Streetview</a>";
+								},
+								isValid: function(coords, zoom) {
+=======
 								getHTML: function (coords, zoom, map) {
 									return "<a title='Launch Google Streetview' target='_blank' rel='noopener noreferrer' href='https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=" + coords.toUrl() + "'>Streetview</a>";
 								},
 								isValid: function (coords, zoom) {
+>>>>>>> origin/master_Vylda
 									return true;
 								}
 							},
 							{
 								name: "MapApp",
+<<<<<<< HEAD
+								getHTML: function(coords, zoom, map) {
+									/* Open Bing Maps app if available, otherwise use a cross-platform Google Maps URI */
+									return "<a title='Launch Bing Maps' href='bingmaps:?cp=" + coords.lat + "~" + coords.lng + "' target='_blank' rel='noopener noreferrer'><a title='Launch Google Maps' href='https://www.google.com/maps/@?api=1&map_action=map&center=" + coords.toUrl() + "&zoom=" + zoom + "' target='_blank' rel='noopener noreferrer'>Maps</a></a>";
+								},
+								isValid: function(coords, zoom) {
+=======
 								getHTML: function (coords, zoom, map) {
 									/* Open Bing Maps app if available, otherwise use a cross-platform Google Maps URI */
 									return "<a title='Launch Bing Maps' href='bingmaps:?cp=" + coords.lat + "~" + coords.lng + "' target='_blank' rel='noopener noreferrer'><a title='Launch Google Maps' href='https://www.google.com/maps/@?api=1&map_action=map&center=" + coords.toUrl() + "&zoom=" + zoom + "' target='_blank' rel='noopener noreferrer'>Maps</a></a>";
 								},
 								isValid: function (coords, zoom) {
+>>>>>>> origin/master_Vylda
 									return true;
 								}
 							}
 						],
+<<<<<<< HEAD
+						showRoute: function(e) {
+							L.DomEvent.stopPropagation(e);
+							this.dropDist(e.latlng);
+						},
+						toggleCaches: function() {
+=======
 						showRoute: function (e) {
 							L.DomEvent.stopPropagation(e);
 							this.dropDist(e.latlng);
 						},
 						toggleCaches: function () {
+>>>>>>> origin/master_Vylda
 							if (window.MapSettings && MapSettings.MapLayers && MapSettings.MapLayers.AddGeocacheLayer && MapSettings.MapLayers.RemoveGeocacheLayer) {
 								if (MapSettings.MapLayers.Geocache) {
 									MapSettings.MapLayers.RemoveGeocacheLayer();
@@ -2247,28 +3375,49 @@
 								}
 							}
 						},
+<<<<<<< HEAD
+						toggleTool: function(mode) {
+							var that = this, widgets = {
+								info: {
+									on: function() {
+=======
 						toggleTool: function (mode) {
 							var that = this, widgets = {
 								info: {
 									on: function () {
+>>>>>>> origin/master_Vylda
 										that._map.on("click contextmenu", that.showInfo, that);
 										$("#map_canvas").addClass("gme-xhair");
 										$(".GME_info").addClass("gme-button-active").attr("title", "Disable location info tool");
 									},
+<<<<<<< HEAD
+									off: function() {
+=======
 									off: function () {
+>>>>>>> origin/master_Vylda
 										that._map.off("click contextmenu", that.showInfo, that);
 										$("#map_canvas").removeClass("gme-xhair");
 										$(".GME_info").removeClass("gme-button-active").attr("title", "Enable location info tool");
 									}
 								},
+<<<<<<< HEAD
+								none: { on: function() { }, off: function() { } },
+								route: {
+									on: function() {
+=======
 								none: { on: function () { }, off: function () { } },
 								route: {
 									on: function () {
+>>>>>>> origin/master_Vylda
 										that._map.on("click contextmenu", that.showRoute, that);
 										$("#map_canvas").addClass("gme-xhair");
 										$(".GME_route").addClass("gme-button-active").attr("title", "Disable route tool");
 									},
+<<<<<<< HEAD
+									off: function() {
+=======
 									off: function () {
+>>>>>>> origin/master_Vylda
 										that._map.off("click contextmenu", that.showRoute, that);
 										$("#map_canvas").removeClass("gme-xhair");
 										$(".GME_route").removeClass("gme-button-active").attr("title", "Enable route tool");
@@ -2286,11 +3435,19 @@
 								widgets[mode].on();
 							}
 						},
+<<<<<<< HEAD
+						search: function(searchVal) {
+							var gr, m, call, callbackPrefix = "GME_search_callback", coords = false, marker, that = this;
+							function searchGS(searchVal) {
+								$(".GME_search_results").addClass("hidden");
+								$.getJSON("/api/geocode", { q: searchVal }, function(a) {
+=======
 						search: function (searchVal) {
 							var gr, m, call, callbackPrefix = "GME_search_callback", coords = false, marker, that = this;
 							function searchGS(searchVal) {
 								$(".GME_search_results").addClass("hidden");
 								$.getJSON("/api/geocode", { q: searchVal }, function (a) {
+>>>>>>> origin/master_Vylda
 									if (a.status === "success") {
 										that._map.panTo(new L.LatLng(a.data.lat, a.data.lng));
 									} else {
@@ -2299,7 +3456,11 @@
 								});
 							}
 							function makeCallback2(callname) {
+<<<<<<< HEAD
+								callbackCount++; return function(json) {
+=======
 								callbackCount++; return function (json) {
+>>>>>>> origin/master_Vylda
 									var i, j;
 									if (json.geonames && json.geonames.length > 0) {
 										$(".GME_search_list").empty();
@@ -2309,7 +3470,11 @@
 										$(".GME_search_results").removeClass("hidden");
 										$(".GME_search_results.ui-collapsible-collapsed a.ui-collapsible-heading-toggle").click();
 										$(".GME_link_GSSearch").off("click");
+<<<<<<< HEAD
+										$(".GME_link_GSSearch").click(function() { searchGS(searchVal); });
+=======
 										$(".GME_link_GSSearch").click(function () { searchGS(searchVal); });
+>>>>>>> origin/master_Vylda
 										that._map.panTo(new L.LatLng(json.geonames[0].lat, json.geonames[0].lng));
 									} else {
 										searchGS(searchVal);
@@ -2319,7 +3484,11 @@
 								};
 							}
 							function makeCallback1(callname) {
+<<<<<<< HEAD
+								callbackCount++; return function(json) {
+=======
 								callbackCount++; return function (json) {
+>>>>>>> origin/master_Vylda
 									var newCall = callbackPrefix + callbackCount;
 									if (json.countryCode) {
 										window[newCall] = makeCallback2(newCall);
@@ -2371,10 +3540,17 @@
 							}
 							return false;
 						},
+<<<<<<< HEAD
+						panToGC: function(gc) {
+							var req = new XMLHttpRequest(),
+								map = this._map || e;
+							req.addEventListener("load", function(e) {
+=======
 						panToGC: function (gc) {
 							var req = new XMLHttpRequest(),
 								map = this._map || e;
 							req.addEventListener("load", function (e) {
+>>>>>>> origin/master_Vylda
 								var r = req.responseText,
 									k = r.indexOf("mapLatLng = {"),
 									c;
@@ -2395,7 +3571,11 @@
 							req.open("GET", "https://www.geocaching.com/geocache/" + gc);
 							req.send();
 						},
+<<<<<<< HEAD
+						updateScale: function(e, timer) {
+=======
 						updateScale: function (e, timer) {
+>>>>>>> origin/master_Vylda
 							var map = this._map || e;
 
 							if (!map.getBounds) {
@@ -2411,7 +3591,11 @@
 
 							if (timer !== undefined) {
 								window.clearTimeout(timer.timer);
+<<<<<<< HEAD
+								timer.timer = window.setTimeout(function() { map.whenReady(updateMap); return false; }, 200);
+=======
 								timer.timer = window.setTimeout(function () { map.whenReady(updateMap); return false; }, 200);
+>>>>>>> origin/master_Vylda
 							} else {
 								map.whenReady(updateMap);
 							}
@@ -2420,7 +3604,11 @@
 					},
 					zoomWarningObj = {
 						options: { position: "topleft" },
+<<<<<<< HEAD
+						onAdd: function(map) {
+=======
 						onAdd: function (map) {
+>>>>>>> origin/master_Vylda
 							var c = L.DomUtil.create("div", "leaflet-control-zoomwarning gme-left");
 							function checkZoom() {
 								if (map.getZoom() > map.layersMaxZoom) {
@@ -2454,7 +3642,11 @@
 					}
 					$(".leaflet-control-scale").addClass("gme-control-scale");
 					$("a.ToggleSidebar").unbind();
+<<<<<<< HEAD
+					$("a.ToggleSidebar").click(function(a) {
+=======
 					$("a.ToggleSidebar").click(function (a) {
+>>>>>>> origin/master_Vylda
 						a.preventDefault();
 						if (window.pnlOpen) {
 							window.pnlOpen = false;
@@ -2477,14 +3669,22 @@
 					return control;
 				}
 			},
+<<<<<<< HEAD
+			xhr: function(e) {
+=======
 			xhr: function (e) {
+>>>>>>> origin/master_Vylda
 				var node = document.getElementById("gme_jsonp_node"),
 					callback = node.getAttribute("data-gme-callback"),
 					url = node.text,
 					details = {
 						"method": "GET",
 						"url": url,
+<<<<<<< HEAD
+						"onload": function(response) {
+=======
 						"onload": function (response) {
+>>>>>>> origin/master_Vylda
 							var x = response.responseText,
 								call = x.match(/([a-zA-Z_$][0-9a-zA-Z_$]*)\s*\(/),
 								s;
@@ -2503,7 +3703,11 @@
 					GM.xmlHttpRequest(details);
 				} else {
 					// Other userscript engines
+<<<<<<< HEAD
+					setTimeout(function() {
+=======
 					setTimeout(function () {
+>>>>>>> origin/master_Vylda
 						GM_xmlhttpRequest(details);
 					}, 0);
 				}
@@ -2599,7 +3803,11 @@
 			details = {
 				"method": "GET",
 				"url": url,
+<<<<<<< HEAD
+				"onload": function(response) {
+=======
 				"onload": function (response) {
+>>>>>>> origin/master_Vylda
 					var x = response.responseText,
 						call = x.match(/([a-zA-Z_$][0-9a-zA-Z_$]*)\s*\(/),
 						s;
@@ -2616,7 +3824,11 @@
 		if (gmeResources.env.xhr === 'GM4') {
 			GM.xmlHttpRequest(details);
 		} else {
+<<<<<<< HEAD
+			setTimeout(function() { GM_xmlhttpRequest(details); }, 0);
+=======
 			setTimeout(function () { GM_xmlhttpRequest(details); }, 0);
+>>>>>>> origin/master_Vylda
 		}
 	}
 
@@ -2731,10 +3943,17 @@
 	document.addEventListener("GME_XHR_event", xhr);
 
 	if (!gmeResources.env.geolocation) {
+<<<<<<< HEAD
+		gmeResources.script.dist = function() { console.warn("GME: Geolocation not available"); };
+	}
+	if (!gmeResources.env.dragdrop) {
+		gmeResources.script.drag = function() { console.warn("GME: Drag and Drop not available"); };
+=======
 		gmeResources.script.dist = function () { console.warn("GME: Geolocation not available"); };
 	}
 	if (!gmeResources.env.dragdrop) {
 		gmeResources.script.drag = function () { console.warn("GME: Drag and Drop not available"); };
+>>>>>>> origin/master_Vylda
 		gmeResources.script.drop = gmeResources.script.drag;
 	}
 
