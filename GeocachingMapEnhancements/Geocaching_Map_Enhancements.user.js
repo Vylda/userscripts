@@ -776,13 +776,11 @@
 								that.parameters.maps[j].ignore = !list[i].checked;
 							}
 						}
-						$("#gme-dist").html("<img style='vertical-align:text-bottom' alt='" + dir + "' src='/images/icons/compass/" + dir + ".gif'> " + dir + " " + formatDistance(here.distanceTo(there) * 1000) + " from here at bearing " + Math.round(bearing) + "&deg;");
 					}
 					for (j = that.parameters.maps.length - 1; j >= 0; j--) {
 						if (that.parameters.maps[j].alt === that.parameters.defaultMap) {
 							that.parameters.maps[j].ignore = false;
 						}
-						alert("GME couldn't detect your location.\nDisable FollowMe mode in Geocaching Map Enhancements if this error pops up repeatedly.");
 					}
 					list = $("#GME_mapfields_del input");
 					for (i = list.length - 1; i >= 0; i--) {
@@ -792,7 +790,6 @@
 									that.parameters.maps.splice(j, 1);
 									break;
 								}
-								return type;
 							}
 						}
 					}
