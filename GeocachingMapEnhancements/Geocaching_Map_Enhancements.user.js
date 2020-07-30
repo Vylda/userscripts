@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name        Geocaching Map Enhancements
-// @version     0.8.2
+// @version     0.9.0
 // @author      JRI
 // @oujs:author JRI
 // @namespace   inge.org.uk/userscripts
