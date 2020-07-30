@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name        Geocaching Map Enhancements
-// @version     0.8.2
+// @version     0.9.0
 // @author      JRI
 // @oujs:author JRI
 // @namespace   inge.org.uk/userscripts
@@ -19,8 +19,8 @@
 // @connect     api.geonames.org
 // @connect     api.postcodes.io
 // @connect     www.geocaching.com
-// @icon        https://geo.inge.org.uk/userscripts/GeocachingMap48.png
-// @icon64      https://geo.inge.org.uk/userscripts/GeocachingMap64.png
-// @updateURL   https://geo.inge.org.uk/userscripts/GeocachingMapEnhancements.meta.js
-// @downloadURL https://openuserjs.org/install/JRI/Geocaching_Map_Enhancements.user.js
+// @icon        http://gcgpx.cz/gme/GeocachingMap48.png
+// @icon64      http://gcgpx.cz/gme/GeocachingMap64.png
+// @updateURL   http://gcgpx.cz/gme/GeocachingMapEnhancements.meta.js
+// @downloadURL https://openuserjs.org/install/Vylda/Geocaching_Map_Enhancements.user.js
 // ==/UserScript==
