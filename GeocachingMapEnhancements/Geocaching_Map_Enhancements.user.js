@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name        Geocaching Map Enhancements
-// @version     0.9.0
-// @author      JRI
-// @oujs:author JRI
+// @version     0.9.1
+// @author      JRI, Vylda
+// @oujs:author JRI, Vylda
 // @namespace   inge.org.uk/userscripts
 // @description Adds extra maps and grid reference search to Geocaching.com, along with several other enhancements.
 // @include     https://www.geocaching.com/*
@@ -34,8 +34,8 @@
 	var gmeResources = {
 		parameters: {
 			// Defaults
-			version: "0.9.0",
-			versionMsg: "Icons fix, API key, Default hill shader",
+			version: "0.9.1",
+			versionMsg: "Waiting for resources loaded in GC page",
 			brightness: 1,	// Default brightness for maps (0-1), can be overridden by custom map parameters.
 			filterFinds: false, // True filters finds out of list searches.
 			follow: false,	// Locator widget follows current location (moving map mode)
@@ -826,6 +826,7 @@
 				//	</bugfix>
 			},
 			dist: function () {
+
 				$("#lblDistFromHome").parent().append("<br/><span id='gme-dist'><a href='#' id='gme-dist-link'>Check distance from here</a></span>");
 				$("#gme-dist-link").click(function () {
 					var there = new LatLon(mapLatLng.lat, mapLatLng.lng),
@@ -2703,6 +2704,7 @@
 		}
 	}
 
+
 	//don't run on frames or iframes
 	if (window.top !== window.self) { return; }
 
@@ -2717,200 +2719,222 @@
 	}
 	document.documentElement.firstChild.setAttribute("data-gme-version", gmeResources.parameters.version);
 
-	for (i = 0; i < pageTests.length; i++) {
-		if (pageTests[i][1].test(document.location.pathname)) {
-			gmeResources.env.page = pageTests[i][0];
-			break;
+	// wait for L and $
+
+	if (typeof L === 'undefined' || typeof $ === 'undefined') {
+		var gmeMainInitCountMax = 120;
+		var gmeMainInitCount = 0;
+		var gmeInitInterval = setInterval(function () {
+			console.info(`----- GME waiting ${gmeMainInitCount} ------`);
+			if (gmeMainInitCount >= gmeMainInitCountMax) {
+				clearInterval(gmeInitInterval);
+				console.error('Leaflet or jQuery not found!');
+			}
+			else if (typeof L !== 'undefined' && typeof $ !== 'undefined') {
+				clearInterval(gmeInitInterval);
+				gmeMainInit();
+			}
+			gmeMainInitCount++;
+		}, 500);
+	} else {
+		gmeMainInit();
+	}
+	function gmeMainInit() {
+		for (i = 0; i < pageTests.length; i++) {
+			if (pageTests[i][1].test(document.location.pathname)) {
+				gmeResources.env.page = pageTests[i][0];
+				break;
+			}
 		}
-	}
-
-	try {
-		if (window.localStorage !== undefined && window.localStorage !== null) { gmeResources.env.storage = true; }
-	} catch (e) {
-		/*Potential security exception*/
-		console.warn("No localStorage capability - GME cannot set configuration");
-	}
-
-	if (gmeResources.env.storage) {
-		var a, b, customJSON, GME_custom, paramsJSON, storedParams;
-		/* List of defunct tileUrls to remove from settings */
-		var blacklist = [
-			"https://ecn.t{s}.tiles.virtualearth.net/tiles/r{q}?g=737&productSet=mmOS",
-			"https://ecn.t{s}.tiles.virtualearth.net/tiles/r{q}?g=864&productSet=mmCB",
-			"https://otile{s}-s.mqcdn.com/tiles/1.0.0/osm/{z}/{x}/{y}.jpg",
-			"https://otile{s}-s.mqcdn.com/tiles/1.0.0/sat/{z}/{x}/{y}.jpg"
-		];
 
 		try {
-			paramsJSON = localStorage.getItem("GME_parameters");
-			if (paramsJSON) {
-				try {
-					storedParams = JSON.parse(paramsJSON);
-					if (storedParams.version !== gmeResources.parameters.version) {
-						for (a in gmeResources.parameters) {
-							if (gmeResources.parameters.hasOwnProperty(a)) {
-								if (storedParams[a] === undefined) { storedParams[a] = gmeResources.parameters[a]; }
+			if (window.localStorage !== undefined && window.localStorage !== null) { gmeResources.env.storage = true; }
+		} catch (e) {
+			/*Potential security exception*/
+			console.warn("No localStorage capability - GME cannot set configuration");
+		}
+
+		if (gmeResources.env.storage) {
+			var a, b, customJSON, GME_custom, paramsJSON, storedParams;
+			/* List of defunct tileUrls to remove from settings */
+			var blacklist = [
+				"https://ecn.t{s}.tiles.virtualearth.net/tiles/r{q}?g=737&productSet=mmOS",
+				"https://ecn.t{s}.tiles.virtualearth.net/tiles/r{q}?g=864&productSet=mmCB",
+				"https://otile{s}-s.mqcdn.com/tiles/1.0.0/osm/{z}/{x}/{y}.jpg",
+				"https://otile{s}-s.mqcdn.com/tiles/1.0.0/sat/{z}/{x}/{y}.jpg"
+			];
+
+			try {
+				paramsJSON = localStorage.getItem("GME_parameters");
+				if (paramsJSON) {
+					try {
+						storedParams = JSON.parse(paramsJSON);
+						if (storedParams.version !== gmeResources.parameters.version) {
+							for (a in gmeResources.parameters) {
+								if (gmeResources.parameters.hasOwnProperty(a)) {
+									if (storedParams[a] === undefined) { storedParams[a] = gmeResources.parameters[a]; }
+								}
+							}
+							alert("Geocaching Map Enhancements has been updated to v" + gmeResources.parameters.version + ". " + gmeResources.parameters.versionMsg);
+							storedParams.version = gmeResources.parameters.version;
+							localStorage.setItem("GME_parameters", JSON.stringify(storedParams));
+						}
+						if (typeof storedParams.maps === "string") {
+							console.info("GME: Trying to fix corrupted map settings.");
+							storedParams.maps = JSON.parse(storedParams.maps);
+						}
+						gmeResources.parameters = storedParams;
+					} catch (e) {
+						console.warn("GME: Could not parse stored configuration parameters.");
+					}
+				}
+				/* Import old-style custom maps */
+				customJSON = localStorage.getItem("GME_custom");
+				if (customJSON) {
+					console.info("GME: Found stored custom settings");
+					try {
+						GME_custom = JSON.parse(customJSON);
+						if (GME_custom.maps && GME_custom.maps.length > 0) {
+							gmeResources.parameters.maps = gmeResources.parameters.maps.concat(GME_custom.maps);
+						}
+						delete localStorage.GME_custom;
+					} catch (e) {
+						console.warn("GME: Could not parse stored custom maps.");
+					}
+				}
+				/* Remove old-style builtin maps */
+				if (gmeResources.parameters.includeMaps) {
+					delete gmeResources.parameters.includeMaps;
+				}
+				if (gmeResources.parameters.excludeMaps) {
+					for (a = gmeResources.parameters.excludeMaps.length - 1; a >= 0; a--) {
+						for (b = gmeResources.parameters.maps.length - 1; b >= 0; b--) {
+							if (gmeResources.parameters.maps[b].alt === gmeResources.parameters.excludeMaps[a]) {
+								gmeResources.parameters.maps[b].ignore = true;
 							}
 						}
-						alert("Geocaching Map Enhancements has been updated to v" + gmeResources.parameters.version + ". " + gmeResources.parameters.versionMsg);
-						storedParams.version = gmeResources.parameters.version;
-						localStorage.setItem("GME_parameters", JSON.stringify(storedParams));
 					}
-					if (typeof storedParams.maps === "string") {
-						console.info("GME: Trying to fix corrupted map settings.");
-						storedParams.maps = JSON.parse(storedParams.maps);
-					}
-					gmeResources.parameters = storedParams;
-				} catch (e) {
-					console.warn("GME: Could not parse stored configuration parameters.");
+					delete gmeResources.parameters.excludeMaps;
 				}
-			}
-			/* Import old-style custom maps */
-			customJSON = localStorage.getItem("GME_custom");
-			if (customJSON) {
-				console.info("GME: Found stored custom settings");
-				try {
-					GME_custom = JSON.parse(customJSON);
-					if (GME_custom.maps && GME_custom.maps.length > 0) {
-						gmeResources.parameters.maps = gmeResources.parameters.maps.concat(GME_custom.maps);
-					}
-					delete localStorage.GME_custom;
-				} catch (e) {
-					console.warn("GME: Could not parse stored custom maps.");
-				}
-			}
-			/* Remove old-style builtin maps */
-			if (gmeResources.parameters.includeMaps) {
-				delete gmeResources.parameters.includeMaps;
-			}
-			if (gmeResources.parameters.excludeMaps) {
-				for (a = gmeResources.parameters.excludeMaps.length - 1; a >= 0; a--) {
-					for (b = gmeResources.parameters.maps.length - 1; b >= 0; b--) {
-						if (gmeResources.parameters.maps[b].alt === gmeResources.parameters.excludeMaps[a]) {
-							gmeResources.parameters.maps[b].ignore = true;
+
+				/* Remove broken map sources */
+				for (a = gmeResources.parameters.maps.length - 1; a >= 0; a--) {
+					for (b = 0; b < blacklist.length; b++) {
+						if (gmeResources.parameters.maps[a].tileUrl === blacklist[b]) {
+							gmeResources.parameters.maps.splice(a, 1);
 						}
 					}
 				}
-				delete gmeResources.parameters.excludeMaps;
-			}
 
-			/* Remove broken map sources */
-			for (a = gmeResources.parameters.maps.length - 1; a >= 0; a--) {
-				for (b = 0; b < blacklist.length; b++) {
-					if (gmeResources.parameters.maps[a].tileUrl === blacklist[b]) {
-						gmeResources.parameters.maps.splice(a, 1);
+				localStorage.setItem("GME_parameters", JSON.stringify(gmeResources.parameters));
+			} catch (e) {
+				console.error("GME: Bad Exception: " + e);
+				/* Potential security exception. Carry on with default parameters, but block localstorage */
+				gmeResources.env.storage = false;
+			}
+		}
+
+		document.addEventListener("GME_XHR_event", xhr);
+
+		if (!gmeResources.env.geolocation) {
+			gmeResources.script.dist = function () { console.warn("GME: Geolocation not available"); };
+		}
+		if (!gmeResources.env.dragdrop) {
+			gmeResources.script.drag = function () { console.warn("GME: Drag and Drop not available"); };
+			gmeResources.script.drop = gmeResources.script.drag;
+		}
+
+		insertCSS(gmeResources.css.main);
+		if (gmeResources.env.storage) {
+			insertPage('GME_config', gmeResources.html.config, 'Configure GME v' + gmeResources.parameters.version);
+			insertPage('GME_format', gmeResources.html.customInfo, 'Custom Mapsource Format', 'GME_config');
+		}
+
+		//	<bugfix>
+		// Trixie treats jQuery Mobile dialogs as new page loads, resetting GME's functions
+		if (window.GME !== undefined) { return; }
+		//	</bugfix>
+
+		switch (gmeResources.env.page) {
+			case "listing":
+				// On a geocache listing
+				if (!gmeResources.env.loggedin) {
+					// Not logged in, so no maps or coordinates...
+					console.log("GME: Couldn't detect log-in.  Exiting...");
+					return;
+				}
+				if (gmeResources.env.dragdrop) { insertCSS(gmeResources.css.drag); }
+				buildScript("GME_page_listing", "common", gmeResources.env.storage ? "config" : "", "map", "dist", "drag", "drop", "loadListing");
+				break;
+			case "seek":
+				// On the Hide & Seek page
+				target2 = document.querySelector(".SeekCacheWidget h4");
+				targets = document.getElementsByTagName("h5");
+				for (i = 0; i < targets.length; i++) {
+					if (targets[i].innerHTML.match(/WGS84/)) {
+						target = targets[i];
+						break;
 					}
 				}
-			}
 
-			localStorage.setItem("GME_parameters", JSON.stringify(gmeResources.parameters));
-		} catch (e) {
-			console.error("GME: Bad Exception: " + e);
-			/* Potential security exception. Carry on with default parameters, but block localstorage */
-			gmeResources.env.storage = false;
+				if (target && target2) {
+					var grDiv = document.createElement("div"), hereDiv = document.createElement("div");
+					grDiv.innerHTML = '<h5>Ordnance Survey Grid Reference :</h5><dl><dt>Grid reference : </dt><dd><form name="grForm" id="grForm"><input type="text" class="Text EqualWidthInput" maxlength="50" size="15" name="grRef" id="grRef" placeholder="SU122422">&nbsp;<input type="submit" class="Button blockWithModalSpinner" name="submitGR" value="Go" id="grSub"></form></dd></dl><h5>Freeform coordinates</h5><dl><dt>Coordinates :</dt><dd><form name="coordForm" id="coordForm"><input type="text" class="Text EqualWidthInput" maxlength="50" size="15" name="gme_coords" id="gme_coords" placeholder="N 51° 10.683′ W 001° 49.604′"/>&nbsp;<input type="submit" class="Button blockWithModalSpinner" name="gme_coords_sub" value="Go" id="gme_coords_sub"/></form></dd></dl>';
+					hereDiv.innerHTML = '<h4>Where you are...</h4><dl><dt>Use GeoLocation :</dt><dd><form name="hereForm" id="hereForm"><input type="submit" class="Button blockWithModalSpinner" name="GME_hereSub" value="Go" id="GME_hereSub"></form></dd></dl><h4>By keyword...</h4><dl><dt>Google search :</dt><dd><form name="googleForm" id="googleForm"><input type="text" class="Text EqualWidthInput" maxlength="50" size="15" name="gme_google" id="gme_google"/><input type="submit" class="Button blockWithModalSpinner" name="GME_googleSub" value="Go" id="GME_googleSub"></form></dd></dl>';
+					target.parentNode.insertBefore(grDiv, target);
+					target2.parentNode.insertBefore(hereDiv, target2);
+
+					buildScript("GME_page_seek", "common", gmeResources.env.storage ? "config" : "", "osgb", "seek", "loadSeek");
+				}
+				break;
+			case "track":
+				// On a TB tracking map
+				if (!gmeResources.env.loggedin) {
+					// Not logged in, so no maps or coordinates...
+					return;
+				}
+				buildScript("GME_page_track", "common", gmeResources.env.storage ? "config" : "", "map", "widget", "loadTrack");
+				break;
+			case "maps":
+				// On a Geocaching Maps page
+				// TODO: Detect if the Google Maps API is being used instead of Leaflet, and quit gracefully
+				/*		if (document.querySelector("script[src*='//maps.googleapis.com/']")){
+							console.warn("Geocaching Map Enhancements requires Leaflet Maps to be enabled.");
+							return;
+					f	}
+				*/
+				// Check for click-thru cache data in URI
+				var pop = location.search.match(/pop=([A-Za-z0-9+\/=]+)[\?&]?/);
+				if (pop && pop.length === 2) {
+					try {
+						localStorage.setItem("GME_cache", pop[1]);
+						location.search = location.search.replace(/&pop=[A-Za-z0-9+\/=]+[\?&]?/, "");
+					} catch (e) {
+						console.error(e + "GME couldn't decode click-through data: " + pop[1]);
+					}
+					return;
+				}
+
+				if (gmeResources.parameters.osgbSearch) {
+					targets = document.getElementsByClassName("SearchBox");
+					if (targets[0]) {
+						targets[0].innerHTML = gmeResources.html.search;
+					}
+				}
+
+				buildScript("GME_page_map", "common", gmeResources.env.storage ? "config" : "", "cssTransitionsFix", "map", "widget", "labels", "drop", gmeResources.parameters.osgbSearch ? "osgb" : "", "loadMap");
+				break;
+			case "type":
+				buildScript("GME_page_type", "common", gmeResources.env.storage ? "config" : "", "map", "widget", "drop", "loadType");
+				break;
+			case "hide":
+				buildScript("GME_page_hide", "common", gmeResources.env.storage ? "config" : "", "map", "widget", "drop", "loadHide");
+				break;
+			default:
+				// Somewhere random on the main website
+				if (gmeResources.env.storage) {
+					buildScript("Generic config", "common", "config", "loadDefault");
+				}
 		}
-	}
-
-	document.addEventListener("GME_XHR_event", xhr);
-
-	if (!gmeResources.env.geolocation) {
-		gmeResources.script.dist = function () { console.warn("GME: Geolocation not available"); };
-	}
-	if (!gmeResources.env.dragdrop) {
-		gmeResources.script.drag = function () { console.warn("GME: Drag and Drop not available"); };
-		gmeResources.script.drop = gmeResources.script.drag;
-	}
-
-	insertCSS(gmeResources.css.main);
-	if (gmeResources.env.storage) {
-		insertPage('GME_config', gmeResources.html.config, 'Configure GME v' + gmeResources.parameters.version);
-		insertPage('GME_format', gmeResources.html.customInfo, 'Custom Mapsource Format', 'GME_config');
-	}
-
-	//	<bugfix>
-	// Trixie treats jQuery Mobile dialogs as new page loads, resetting GME's functions
-	if (window.GME !== undefined) { return; }
-	//	</bugfix>
-
-	switch (gmeResources.env.page) {
-		case "listing":
-			// On a geocache listing
-			if (!gmeResources.env.loggedin) {
-				// Not logged in, so no maps or coordinates...
-				console.log("GME: Couldn't detect log-in.  Exiting...");
-				return;
-			}
-			if (gmeResources.env.dragdrop) { insertCSS(gmeResources.css.drag); }
-			buildScript("GME_page_listing", "common", gmeResources.env.storage ? "config" : "", "map", "dist", "drag", "drop", "loadListing");
-			break;
-		case "seek":
-			// On the Hide & Seek page
-			target2 = document.querySelector(".SeekCacheWidget h4");
-			targets = document.getElementsByTagName("h5");
-			for (i = 0; i < targets.length; i++) {
-				if (targets[i].innerHTML.match(/WGS84/)) {
-					target = targets[i];
-					break;
-				}
-			}
-
-			if (target && target2) {
-				var grDiv = document.createElement("div"), hereDiv = document.createElement("div");
-				grDiv.innerHTML = '<h5>Ordnance Survey Grid Reference :</h5><dl><dt>Grid reference : </dt><dd><form name="grForm" id="grForm"><input type="text" class="Text EqualWidthInput" maxlength="50" size="15" name="grRef" id="grRef" placeholder="SU122422">&nbsp;<input type="submit" class="Button blockWithModalSpinner" name="submitGR" value="Go" id="grSub"></form></dd></dl><h5>Freeform coordinates</h5><dl><dt>Coordinates :</dt><dd><form name="coordForm" id="coordForm"><input type="text" class="Text EqualWidthInput" maxlength="50" size="15" name="gme_coords" id="gme_coords" placeholder="N 51° 10.683′ W 001° 49.604′"/>&nbsp;<input type="submit" class="Button blockWithModalSpinner" name="gme_coords_sub" value="Go" id="gme_coords_sub"/></form></dd></dl>';
-				hereDiv.innerHTML = '<h4>Where you are...</h4><dl><dt>Use GeoLocation :</dt><dd><form name="hereForm" id="hereForm"><input type="submit" class="Button blockWithModalSpinner" name="GME_hereSub" value="Go" id="GME_hereSub"></form></dd></dl><h4>By keyword...</h4><dl><dt>Google search :</dt><dd><form name="googleForm" id="googleForm"><input type="text" class="Text EqualWidthInput" maxlength="50" size="15" name="gme_google" id="gme_google"/><input type="submit" class="Button blockWithModalSpinner" name="GME_googleSub" value="Go" id="GME_googleSub"></form></dd></dl>';
-				target.parentNode.insertBefore(grDiv, target);
-				target2.parentNode.insertBefore(hereDiv, target2);
-
-				buildScript("GME_page_seek", "common", gmeResources.env.storage ? "config" : "", "osgb", "seek", "loadSeek");
-			}
-			break;
-		case "track":
-			// On a TB tracking map
-			if (!gmeResources.env.loggedin) {
-				// Not logged in, so no maps or coordinates...
-				return;
-			}
-			buildScript("GME_page_track", "common", gmeResources.env.storage ? "config" : "", "map", "widget", "loadTrack");
-			break;
-		case "maps":
-			// On a Geocaching Maps page
-			// TODO: Detect if the Google Maps API is being used instead of Leaflet, and quit gracefully
-			/*		if (document.querySelector("script[src*='//maps.googleapis.com/']")){
-						console.warn("Geocaching Map Enhancements requires Leaflet Maps to be enabled.");
-						return;
-				f	}
-			*/
-			// Check for click-thru cache data in URI
-			var pop = location.search.match(/pop=([A-Za-z0-9+\/=]+)[\?&]?/);
-			if (pop && pop.length === 2) {
-				try {
-					localStorage.setItem("GME_cache", pop[1]);
-					location.search = location.search.replace(/&pop=[A-Za-z0-9+\/=]+[\?&]?/, "");
-				} catch (e) {
-					console.error(e + "GME couldn't decode click-through data: " + pop[1]);
-				}
-				return;
-			}
-
-			if (gmeResources.parameters.osgbSearch) {
-				targets = document.getElementsByClassName("SearchBox");
-				if (targets[0]) {
-					targets[0].innerHTML = gmeResources.html.search;
-				}
-			}
-
-			buildScript("GME_page_map", "common", gmeResources.env.storage ? "config" : "", "cssTransitionsFix", "map", "widget", "labels", "drop", gmeResources.parameters.osgbSearch ? "osgb" : "", "loadMap");
-			break;
-		case "type":
-			buildScript("GME_page_type", "common", gmeResources.env.storage ? "config" : "", "map", "widget", "drop", "loadType");
-			break;
-		case "hide":
-			buildScript("GME_page_hide", "common", gmeResources.env.storage ? "config" : "", "map", "widget", "drop", "loadHide");
-			break;
-		default:
-			// Somewhere random on the main website
-			if (gmeResources.env.storage) {
-				buildScript("Generic config", "common", "config", "loadDefault");
-			}
 	}
 }());

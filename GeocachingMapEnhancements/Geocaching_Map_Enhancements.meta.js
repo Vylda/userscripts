@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name        Geocaching Map Enhancements
-// @version     0.9.0
-// @author      JRI
-// @oujs:author JRI
+// @version     0.9.1
+// @author      JRI, Vylda
+// @oujs:author JRI, Vylda
 // @namespace   inge.org.uk/userscripts
 // @description Adds extra maps and grid reference search to Geocaching.com, along with several other enhancements.
 // @include     https://www.geocaching.com/*
